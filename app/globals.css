@@ -1,26 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Euclid Circular B', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --color-primary: #6841E6;
+  --color-primary-hover: #582FD2;
+  --color-primary-active: #4E29BB;
+  --color-primary-subtle: #EAEAFD;
+  --color-primary-faint: #F5F3FF;
+  --color-primary-ring: #D9D8FC;
+  --color-on-primary: #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-card-bg: #FBFBFB;
+  --color-card-border: #FFFFFF;
+  --color-text-primary: #0A0A0A;
+  --color-text-default: #141414;
+  --color-text-secondary: #605F63;
+  --color-text-disabled: #B7B7B8;
+  --color-border: #B7B7B8;
+  --color-border-subtle: #E0E0E1;
+  --color-error: #DC2626;
+  --color-error-subtle: #FEF2F2;
+  --color-success: #16A34A;
+  --color-success-subtle: #F0FDF4;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: 'Euclid Circular B', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

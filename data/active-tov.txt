@@ -1,0 +1,1251 @@
+ACKO voice guide
+
+
+
+Our story
+
+We're not a traditional insurance company that writes for themselves, that talks like a policy. We write for the person on the other end. No intimidating jargon or frustrating processes. We’re here as a helping hand.
+
+
+
+Voice pillars
+
+Assuring
+
+Insurance is tested when something goes wrong. That’s when customers need ACKO to sound clear, steady, and in control.
+
+How do we become ‘assuring’? By removing uncertainty, step by step. We explain what happened, what ACKO is doing, what the customer needs to do, and what happens next, clearly.
+
+No overpromising. Or hiding behind vague comfort.
+
+When to be more assuring:
+
+The customer is stressed, mid-claim, or something has just failed.
+
+Examples: Claim updates, hospitalisation support, accident support, roadside assistance, repair updates, document checks, payment confirmations, complaint resolution.
+
+When to be less assuring:
+
+Customer is feeling: neutral, browsing, exploring, comparing.
+
+Examples: Landing pages, plan comparisons, product explainers, add-on education, pre-purchase journeys.Too much reassurance here either feels like filler or, worse, plants doubt that wasn't there.
+
+
+
+Plainspoken
+
+Insurance should not need a translator.
+
+Plainspoken means saying what matters in words people understand: What’s covered, what’s not, what it costs, what to do next, and what could affect a claim.
+
+ACKO should sound clear, direct, and useful. We make the important things easy to find, easy to read, and hard to misunderstand.When to be more plainspoken
+
+Customer is feeling: confused, time-pressed, cautious, trying to complete a task.
+
+Examples: Quote flows, policy summaries, exclusions, claim forms, payment screens, error states, FAQs.
+
+When to be less plainspoken
+
+Almost never.
+
+Plainspoken should be ACKO’s default. The term can be written in a legal or regulatory language. But, we should always explain it in a way customers can understand quickly and clearly. Example: IDV (Insured Declared Value)
+
+The current value of your car according to the insurer. If your car is stolen or damaged beyond repair, this is usually the maximum amount your insurer will pay you. 
+
+Insightful
+
+When we say insightful, it's about being the most informed person in the room, and using that knowledge to help the customer choose well, not to push them toward what we want to sell. Tell people something they didn't know they needed to know. 
+
+When to be more insightful
+
+Customer is feeling: curious, deliberating, comparing, doing their homework.
+
+Examples: Landing pages, plan comparisons, in-app educational content, pre-purchase WhatsApp nudges, policy explainers.
+
+When to be less insightful
+
+Customer is feeling: anxious, in crisis, time-pressed, mid-claim.
+
+Examples: claim communications, error states, emergency flows, payment failures. In these moments, the customer doesn't need more information — they need the next step.
+
+Transparent
+
+No sugarcoating the tough stuff. When we say transparent, it's about giving exclusions the same space as coverages— and putting both where the reader can see them. If something could come back to surprise a customer at claim time, we'd rather they hear it from us first.
+
+When to be more transparent
+
+Customer is feeling: cautious, evaluating risk, reading fine print, deciding whether to buy.
+
+Examples: Exclusions, waiting periods, deductibles, sub-limits, claim eligibility criteria, renewal terms, premium changes, "things to know" callouts, refund policies, T&Cs.
+
+When to be less transparent
+
+If this question even came up in your head, go back and write it more transparently.
+
+2. Global writing rules
+
+Always do this
+
+Lead with the user’s outcome: Tell the user what this means for them first
+
+Write in second person: Use “you” and “your”. Avoid “customer”, “policyholder”, “insured”, or “claimant” unless legally required
+
+Prefer active voice: Use “We’re reviewing your claim” instead of “Your claim is being reviewed”
+
+Give the next step: Every message should answer: “What should I do now?”
+
+Use exactness wherever possible: Amounts, dates, time windows, documents, claim stages, and payment responsibility
+
+Explain why: Especially when asking for documents, permissions, payment, health details, or vehicle details
+
+Make the catch visible: Waiting periods, exclusions, deductibles, co-pay, add-ons, limits, and non-covered items
+
+Match the user’s emotional state: Accident = calm; hospitalisation = supportive; policy purchase = clear; reminder = helpful; claim approval = positive but composed; claim rejection = direct and fair
+
+Never do this
+
+Never overpromise: Avoid “guaranteed approval”, “instant claim settlement”, or “100% covered” unless legally and factually true
+
+Never hide behind T&Cs: Avoid “subject to terms and conditions”. Explain the actual condition
+
+Never make insurance sound like a party: Avoid hype in serious categories
+
+Never use fear as the primary hook: Use preparedness instead of panic
+
+Never blame the user: Write “These details don’t match our records” instead of “You entered incorrect details”
+
+Never use vague service language: Write “We’re checking your documents. This usually takes up to 2 hours” instead of “We’re processing your request”
+
+Never sound like an agent hard-selling a policy: Avoid urgency traps unless the urgency is real
+
+Never use cleverness when clarity is needed: Especially in claims, payments, exclusions, emergencies, health, accidents, or failed actions
+
+How the voice flexes across products
+
+Auto Insurance
+
+
+
+Sound like: Assuring, fair, steady
+
+Do
+
+Mention claim stage
+
+Mention owner of next action
+
+Mention timeline
+
+Mention user payment, if any
+
+Explain deductions clearly
+
+Avoid
+
+“Journey”
+
+“Sit back and relax”
+
+“Hassle-free” unless the process truly is
+
+“Approved” unless fully approved
+
+“Rejected” without a reason and next option
+
+Example: Your claim is under review. We’re checking the garage estimate and will update you by 6 PM today.
+
+
+
+
+
+Car USPs
+
+Instant policy
+
+Zero paperwork
+
+Zero commission
+
+No broker hassle
+
+Personalised pricing
+
+Cashless claims at any garage
+
+24x7 support 
+
+24x7 roadside assistance
+
+No hidden terms 
+
+Manage everything on the app 
+
+Useful add-ons 
+
+Quality repairs with warranty 
+
+Free car pick up and drop 
+
+Priority repairs at ACKO partner garages
+
+VAS - Ambulance, Challan, FASTag, car service, car valuation, PUC expiry, RTO, buy a new car, enable challan alerts, apply for a visa, book car servicing 
+
+Bike USPs
+
+
+
+NO cashless claims
+
+Insurance starts at ₹457
+
+Zero fees
+
+Zero commission
+
+Zero paperwork
+
+24x7 assistance
+
+Instant claim settlement
+
+Buy or renew bike insurance online in just 2 minutes
+
+
+
+Health insurance
+
+Insurance exists because life can go wrong. Pretending otherwise, or leading with sunshine makes our proposition weaker. So we name what's actually at stake. But naming isn't amplifying. We don't reach for devastating or what if tomorrow never comes. We state the situation. We let it land.
+
+
+
+Do
+
+Avoid
+
+Do you have ₹20 lakhs to pay for hospital bills?
+
+Don't let your family suffer.
+
+Your claim can be rejected because of this missing cover.
+
+One missing cover could ruin everything.
+
+
+
+
+
+Writing cues
+
+Make complex things simple, not technical. If a term is familiar to customers, use it, but always explain it. No-claim bonus, cumulative bonus, porting — call them out, but break them down. Every line should sound the way someone would say it out loud, not the way a contract reads it.
+
+When a number makes the point better, lead with it
+
+Adjectives like significantly, rapidly, widely feel like they're adding weight. They’re not. "Hospitalisation expenses have gone up" is easy to dismiss. "Hospitalisation expenses have gone up by 30%" stops the reader and makes them think. The reader feels the gap not because we told them to feel it, but because they are seeing the math at play.
+
+What we explain well
+
+Waiting periods
+
+Pre-existing disease rules
+
+Hospital/network implications
+
+Encourage professional medical help when needed
+
+What we won't do
+
+Giving medical advice.
+
+Fearmongering
+
+Avoid emotionally loaded family language
+
+Light humour
+
+
+
+
+
+How we write our unique selling points
+
+100% hospital bill payment/100% hospital bills paid
+
+
+
+No room rent limits
+
+
+
+10% bonus sum insured every year
+
+
+
+Zero waiting period (for members under 50)
+
+
+
+Cashless treatments at 11,300+ hospitals
+
+
+
+File reimbursement claim in 2 minutes
+
+
+
+Free yearly health check-ups
+
+
+
+Free doctor teleconsultations
+
+
+
+Tax deductions up to ₹75,000
+
+
+
+Zero wait discharge
+
+
+
+
+
+
+
+
+
+Glossary
+
+
+
+Term
+
+Explain as
+
+Sum insured
+
+The maximum amount we'll pay in a year.
+
+Deductible
+
+The amount you pay first before we cover the rest.
+
+Co-pay
+
+Your share of the bill.
+
+Waiting period
+
+The time you need to wait before your plan starts covering certain types of treatments. 
+
+Pre-existing disease (PED)
+
+A health condition you had before buying this policy.
+
+Day-care procedure
+
+Treatment that doesn't need an overnight hospital stay.
+
+Cashless claim
+
+We pay the hospital directly.
+
+Reimbursement claim
+
+You pay first, we pay you back.
+
+Network hospital
+
+A hospital where you can get cashless treatment.
+
+Consumables
+
+Medical supplies like gloves, syringes, and IV tubes.
+
+Restoration benefit
+
+Your sum insured gets restored if it runs out mid-year.
+
+OPD (Outpatient Department)
+
+This is for those everyday medical needs that don’t require staying in a hospital.
+
+Grace period
+
+Extra time to pay your renewal premium without losing your policy
+
+Porting
+
+Moving your health insurance from one insurer to another
+
+
+
+Life insurance
+
+
+
+Life insurance is the hardest one to write — most insurers pack it with fear or mortality sentiment. We treat life insurance as a financial decision that protects the people who depend on the customer's income. The tone is assuring, responsible, and grounded.
+
+
+
+Do
+
+Avoid
+
+The breadwinner is gone. The family is left with a ₹50 lakh loan.
+
+What will your family do without you?
+
+A ₹1 crore cover can help your family manage rent, school fees, and loans.
+
+Who pays your child’s fees when you're gone?
+
+
+
+Writing cues
+
+Talk in financial outcomes, not emotions
+
+Life insurance protects against a financial shock, not an emotional one. So we frame cover in numbers the customer can match against their actual life — rent, EMIs, school fees, dependents, years of income to replace. The math does the persuasion. 
+
+What we explain well
+
+The difference between term plans and other life insurance products
+
+Nominee details and payout timelines
+
+How adequate cover is calculated (10–20x annual income)
+
+What riders do and when they're worth adding
+
+Grace period and lapse rules
+
+What we won't do
+
+Guilt-based parenting language ("your family's future depends on this")
+
+Dramatising death or absence
+
+Overpromising claim certainty
+
+Sentimentality dressed as concern ("we know how much they mean to you")
+
+
+
+How we write our unique selling points
+
+Flexible term plan/ Customise your coverage
+
+Create a will for FREE
+
+Adjust your policy term
+
+Modify nominee details
+
+Choose how your nominees receive the payout
+
+Tax savings 
+
+
+
+Glossary
+
+
+
+Term
+
+Explain as
+
+Life cover
+
+Money your family receives if something happens to you while the policy is active.
+
+Nominee
+
+The person who receives the claim amount.
+
+Policy term
+
+How long your policy stays active
+
+Rider
+
+An add-on cover you can include in your policy
+
+Critical illness rider
+
+We’ll pay  if you’re diagnosed with a listed serious illness
+
+Accidental death benefit
+
+We’ll pay if an accident leads to death
+
+Income replacement
+
+A way to estimate how much cover your family may need for future expenses
+
+Grace period
+
+Extra time to pay your renewal premium without losing your policy
+
+
+
+
+
+Travel insurance
+
+Sound like: Prepared, practical, calm
+
+Do
+
+Clarify what airline handles vs what insurance covers
+
+Explain delay/cancellation eligibility
+
+Mention required documents
+
+Give next steps
+
+Avoid
+
+Overpromising compensation
+
+Making every disruption sound covered
+
+Casual airport jokes during stressful events
+
+Example: Your flight delay may be covered if it crosses the minimum delay period in your policy. Keep your boarding pass and delay confirmation ready.
+
+
+
+Enterprise insurance
+
+ACKO for Business is ACKO's B2B arm.It serves 5 categories:
+
+GMC (Group Medical Cover) — the flagship. Vanilla, Modular, and Flex constructs.
+
+Gig — insurance for gig and contract workforces, sold to platforms like Zomato, Swiggy
+
+Travel — group travel cover, sold to companies for travel platforms like MMT, RedBus
+
+Electronic Device — embedded device protection, sold to platforms, large-format retail and general trade 
+
+Credit — embedded credit life and loan-linked cover, sold to lenders.
+
+Positioning statement‘New-age insurance for the modern-day business.’
+
+This line holds the whole B2B arm together. Use it as the umbrella for any cross-category communication — homepage, deck covers, brand campaigns. For category-specific work, the line still sits at the top of the page; the body lands on the audience-specific framing underneath.
+
+Term
+
+What it means
+
+In copy
+
+GHI (Group Health Insurance)
+
+Health insurance bought by a company to cover its employees
+
+Use unexplained for CFO/HR/IT. Define for employees: "the group health policy your company has set up for you"
+
+Co-pay
+
+The portion of a claim the employee pays out of pocket
+
+Always translate inline: "what the employee pays out of pocket"
+
+Sub-limit
+
+A smaller cap that applies inside the overall sum insured
+
+Always translate: "a cap inside a cap — for example, maternity capped at ₹1 lakh inside the ₹5 lakh overall cover"
+
+Waiting period
+
+The time before a specific cover kicks in
+
+Always translate for employees: "how long before this is covered"
+
+Pre-existing disease (PED)
+
+Conditions someone had before joining the policy
+
+Use the term with HR audiences. Translate for employees: "anything you were diagnosed with before joining"
+
+Network hospitals
+
+Hospitals where the employee doesn't pay upfront — we settle directly
+
+Translate for employees: "hospitals where you don't pay first"
+
+Pre-authorisation
+
+Hospital approval from the insurer before treatment, for cashless
+
+Translate for employees: "hospital approval before treatment"
+
+Top-up
+
+Extra cover that activates after the base cover is used up
+
+Translate for employees: "extra cover after the base runs out"
+
+Super top-up
+
+Like a top-up, but counted across all claims in a year, not per claim
+
+Translate for employees: "extra cover that pools across all your claims in a year"
+
+OPD (Out-Patient Department)
+
+Hospital visits that don't need admission — doctor consults, diagnostics, dental
+
+Use unexplained for HR. Define for employees: "doctor visits without admission"
+
+TPA (Third-Party Administrator)
+
+A middleman that some insurers use to handle claims
+
+Use unexplained for CFO/HR. Translate for employees: "the claims-handling agency"
+
+Endorsement
+
+An official mid-policy change — adding joiners, removing dependants, updating cover
+
+Use for HR/Procurement. Translate for employees: "a mid-year change to your policy"
+
+Exclusion
+
+Anything the policy doesn't cover
+
+Always translate inline when the audience includes employees
+
+TAT (Turn-Around Time)
+
+How long an operational step takes from start to finish
+
+Use unexplained for CFO/HR/IT/Procurement
+
+Network hospital
+
+Same as cashless network — hospitals where direct settlement happens
+
+Translate for employees: "hospitals where we settle directly with the hospital"
+
+Family floater
+
+One sum insured shared across the whole family
+
+Translate for employees: "one cover amount your whole family shares"
+
+E1. Group Health Insurance
+
+Sound like: Employer-led, employee-firstImportant: The reader is the employer buying for hundreds or thousands of employees, with finance, HR, and IT all in the room. 
+
+Do
+
+Cater to the employer first, then the employee
+
+Explain terms on the first instance: sum insured, basic plan, top-up plan, add-ons
+
+Use "we" for ACKO actions, "your team" for the buyer's employees
+
+Use: Group Health Insurance for mentioning the policy
+
+Avoid
+
+Use absolutes — "every," "always," "the only," "guaranteed"
+
+Use intensifiers — "really fast," "extremely transparent," "incredibly easy"
+
+Stack three or more adjectives in a row
+
+Use exclamation marks anywhere in copy
+
+Don’t use: Corporated-Provided Health Insurance/Employer-Provided/Org-Provided Insurance/Group Medical Cover
+
+Example: H1: We’ve got you covered!Sub:{Company} has set up health insurance for you and your loved ones. 
+
+E2. Gig Workforce InsuranceSound like: Empathetic, operational, plainspeakDo
+
+Use the platform's word for their workforce — "fleet," "partners," “riders” 
+
+Write for the platform first, user (fleet/rider) second
+
+For platforms (Zomato, Ola), use number-driven metrics to highlight impact
+
+For user (rider/fleet) communications, use short sentences and simple language
+
+Explain terms on the first instance: sum insured, basic plan, top-up plan, add-ons 
+
+Avoid
+
+Address gig teams as  "employees" or " staff"
+
+Use similar styles for comms for platform and user both
+
+E3. Device ProtectionSound like: Device-safety, quick and transparent.Do
+
+Keep customer-facing copy under 50 words total
+
+Open with the price: "₹299 device protection"
+
+Explain types of plans: extended warranty, comprehensive warranty, screen damage
+
+Avoid
+
+Write "worry-free protection" or "peace of mind" for devices
+
+Stack benefit bullets longer than three items
+
+
+
+Grammar and style rules
+
+These rules preserve a simple, conversational, user-first style, while adapting it for ACKO’s insurance context.
+
+Casing
+
+Use sentence case everywhere. 
+
+GoodYour claim is under review
+
+AvoidYour Claim Is Under Review
+
+
+
+For plan or campaign names, use title case.
+
+
+
+GoodGet the ACKO Platinum Health Plan
+
+AvoidGet the ACKO platinum health plan
+
+
+
+Perspective
+
+Use second person: you, your. Avoid “customer”, “policyholder”, “insured”, or “claimant” unless legally required.
+
+GoodYour policy starts today
+
+AvoidThe customer’s policy starts today
+
+
+
+Contractions
+
+Use contractions to sound human. Avoid them only in legal, regulatory, or highly formal disclosures if precision is required.
+
+GoodWe’ll update you soon
+
+AvoidWe will update you soon
+
+
+
+Numbers
+
+Use numerals.
+
+Good3 documents needed
+
+AvoidThree documents needed
+
+
+
+Currency
+
+Use ₹. No space between ₹ and the number. Use Indian amount formats when writing large amounts.
+
+Good₹2,000; ₹5 lakh; ₹1 crore
+
+AvoidRs. 2,000; INR 2,000; ₹ 2,000
+
+
+
+Percentages
+
+Use %.
+
+Good20% co-pay
+
+Avoidtwenty percent co-pay
+
+
+
+Dates
+
+Use this format: 24 Jun, 2026. Include the day when helpful.
+
+GoodYour policy expires on Fri 24 Jun
+
+AvoidYour policy expires on 24th June
+
+
+
+Time
+
+Use this format: 9:00 AM. For time ranges, use 9 AM – 7 PM or 9:30 AM – 12:45 PM 
+
+GoodWe’ll update you by 6:00 PM
+
+AvoidWe’ll update you by 6pm
+
+
+
+Full stops
+
+Use full stops in headers, subtexts, body copy, and anything in between. 
+
+When a group of sentences or points share a structure, treat them the same way: if most end in full stops, all do. If most don't, none do. 
+
+Headers, though, never take a full stop, even when they contain other punctuation like a question mark or em dash. Subtexts always do. 
+
+The one exception: punchy headers built from multiple short sentences keep their full stops, because the rhythm depends on them.
+
+
+
+GoodYour policy is active. We'll send you the details by email.
+
+AvoidYour policy is active. We'll send you the details by email
+
+
+
+
+
+Exclamation marks
+
+Use sparingly. Allowed only for positive, low-risk moments.
+
+GoodYour policy is active!
+
+AvoidYour claim was rejected!
+
+
+
+Ellipses
+
+Use ellipses only for loading states.
+
+GoodVerifying your details…
+
+AvoidYour claim is almost there…
+
+
+
+Emojis
+
+Never use an emoji as a word replacement. Maximum 4 emojis per message. Overuse looks childish. On WhatsApp, never in the middle of a sentence — beginning or end only. 
+
+
+
+GoodGet your car insurance 🚗
+
+AvoidGet your 🚗 insurance
+
+
+
+Ampersands
+
+Avoid ampersands unless space is extremely limited or the official product/legal name uses “&”.
+
+GoodHealth and travel insurance
+
+AvoidHealth & travel insurance
+
+
+
+Brackets
+
+Use brackets only to clarify abbreviations or add necessary data.
+
+GoodNo Claim Bonus (NCB); Your premium is ₹8,400 (including GST)
+
+AvoidYour claim is approved (great news)
+
+
+
+Bullets
+
+Use bullets for scannability. One idea per bullet. Start each bullet with a capital letter. No full stop if the bullet is a fragment.
+
+GoodPAN card; Policy number; Hospital bill
+
+AvoidLong paragraph lists with multiple ideas
+
+
+
+ALL-CAPS 
+
+Use bullets for scannability. One idea per bullet. Start each bullet with a capital letter. No full stop if the bullet is a fragment.
+
+Hyphenation
+
+Use a hyphen when leaving it out would make the term harder to read or change its meaning. Check up (two separate words) feels different from Annual health check-up (a single noun for a medical visit) — that's when a hyphen helps.
+
+
+
+Hyphenated words
+
+Not hyphenated
+
+Premium break-up
+
+Healthcare
+
+Co-pay
+
+Coordinate
+
+Third-party
+
+Reinsurance
+
+Pre-existing
+
+Bodywork
+
+Follow-up
+
+Horsepower
+
+Sub-limit
+
+Policyholder
+
+
+
+Units
+
+Units stay singular and lowercase even when the number is large — lakh, crore, km, and kg don't take an "s" like English plurals do.
+
+
+
+Good12 lakh customers; 45 km; 4 cr. users
+
+Avoid12 Lakhs customers; 45 KMs; 4 Crores users
+
+
+
+Words that don't pluralise
+
+Some words don't take an "s" even when you're talking about more than one. They describe something collective or abstract — so the quantity is shown by the number ahead of them, not by changing the word itself.
+
+
+
+Good
+
+Avoid
+
+4 of 5 steps in progress
+
+Progresses
+
+Feedback
+
+Feedbacks
+
+Information
+
+Informations
+
+Damage
+
+Damages
+
+Documentation
+
+Documentations
+
+Copy
+
+Copies (only if you are taking xerox)
+
+Sign-off rule across channels
+
+Don't sign off WhatsApp messages at all. No 'Thanks, Team ACKO'.
+
+Don't end any message with 'For further assistance call us on…'.
+
+Don't sign off with 'Yours sincerely, Team ACKO' on email.
+
+
+
+How the voice carries across channels
+
+App UX / in-product
+
+This is functional writing — flows, buttons, error states, confirmations. The reader is mid-task and needs to move. Every word should earn its place. Be Plainspoken here: if something is going wrong, say it clearly and immediately. No softening, no burying. 
+
+Landing pages
+
+This is where someone is deciding whether to trust us. Be insightful and persuade honestly. We lead with what customers need to know, not what we want to say. Answer the question they're already asking before they have to ask it. 
+
+WhatsApp
+
+Conversational but never casual. WhatsApp is a personal channel — people don't expect brand language here. Be insightful is the primary voice: every message should give the reader something useful, not just a nudge to buy.
+
+Channel guidelines
+
+Header: under 40 characters. Clear, compelling, context-setting. Should make the user want to expand 'Read more'.
+
+Body: 400–500 characters ideal; stay under 100 words. More than 60 words requires the user to scroll on most phones.
+
+Don't waste the first line on 'Hey'. ~3 seconds to hook the user.
+
+Bold the first line to grab attention.
+
+Weave the first name in organically — never at the start. 'It doesn't get any better, Kavita!' not 'Hi Kavita,'.
+
+Up to 3 quick replies. More than 3 confuses the user.
+
+No sign-off. No 'Thanks, Team ACKO'.
+
+Structure: Line 1–2 hook → Line 3–5 context/value prop → remaining: details, benefits, CTA.
+
+Push notifications
+
+The most constrained surface we write for. Functional pushes — claim approvals, payment reminders, policy expiry, document requests — call for plain, direct copy. Say exactly what happened or what's needed, and stop. Promotional pushes — renewals with a discount, new plan launches, seasonal campaigns — have a tiny bit more room to lead with hook over instruction, but the principle holds: get to the point fast, earn the tap, never oversell.Channel guidelines
+
+● Title/Header (<30 chars)
+
+○ Keep short, sharp, curiosity-driven
+
+○ Aim for urgency or benefit-led phrasing
+
+○ Avoid filler words
+
+● Body (100–140 chars)
+
+○ First half: most visible → place key hook/value here
+
+○ Second half: supporting info, CTA, or detail
+
+○ Structure: Hook → Benefit → Nudge/CTA
+
+Email
+
+More room to breathe than most channels, but that's not an invitation to fill the space. The most important thing goes in the first two lines, not after a wind-up. Subject lines should say the actual thing. Email is where policy updates, renewal reminders, and claim communications live — all of them high-stakes moments where plain, direct writing matters most.
+
+Channel guidelines
+
+Subject line: under 8 words. Longer lines get cut off.
+
+Subject line must be focused. 'Payment successful for your plan' ✅ vs 'Good news about your plan' ❌
+
+Max 1 emoji in the subject line.
+
+CTA must be in the first fold. Let the user tap and enter the journey immediately.
+
+Start the heading with 'we' or 'you'. 'You need to visit a lab' ✅ vs 'Lab visit required' ❌
+
+No names or personalisation in the heading. Changes meaning and line length.
+
+Don't sign off with 'Team ACKO'.
+
+
+
+Social media
+
+Social is where ACKO's personality shows up more than its principles. Campaigns, cultural moments, cricket season — this is where wit and timing matter as much as voice. The one thing that doesn't change: we don't oversell, and we don't say things on social media; we can't back up everywhere else. The voice can be playful and insightful. 
+
+
+
+ACKO Glossary across LOB’s
+
+Spell out uncommon terms the first time. After first use, abbreviations are okay.
+
+GoodNo Claim Bonus (NCB); Insured Declared Value (IDV); Pre-existing disease (PED)
+
+AvoidNCB, IDV, and PED without explanation
+
+
+
+Common terms that can stay abbreviated
+
+PAN
+
+GST
+
+UPI
+
+OTP
+
+SMS
+
+PDF
+
+FASTag
+
+PUC
+
+RC
+
+5. Please, sorry, and bad news
+
+They appear constantly in claim, service, and support copy.
+
+5.1 Using 'please'
+
+Use it to soften a message. E.g. 'We were unable to process your cashless claim. Please submit a reimbursement claim instead.'
+
+Use it when the user is waiting. E.g. 'Please wait while we look for an agent.'
+
+Use it when asking the user to do something extra. E.g. 'Please give us an alternate number.'
+
+Don't use it for the sake of it. E.g. avoid 'Please check your premium details'.
+
+5.2 Using 'sorry'
+
+Use it only when it's our fault. E.g. 'Sorry, we had to cancel your medical tests as the doctor was unavailable.'
+
+An apology doesn't always need the word 'sorry'. E.g. 'This usually doesn't take this long.'
+
+Never follow a 'sorry' with a 'but'. E.g. avoid 'Sorry for the delay but no agents are available right now'.
+
+5.3 Delivering bad news
+
+✅ Do: We were unable to approve your claim as your documents were outdated.
+
+❌ Avoid: We have some bad news. It may be disheartening, but your claim is rejected.
+
+Plain delivery. No build-up. State the fact, the cause, and the user's option.
+
+
+
+Writing sensitive claims communications
+
+The highest-stakes writing surface we have. This is the moment the product either delivers or doesn't — and the writing has to match that weight. Assuring, transparent are the voices we would have to go with here.  
+
+Claims comms guidelines
+
+Always say the current stage. 'We're reviewing your hospital documents' is better than 'Your claim is in progress'.
+
+Always name who's acting next. Us, the customer, the hospital, the doctor.
+
+Always give a timeline. 'We'll update you within 2 hours' is better than 'We'll update you soon'.
+
+Using passive voice in some cases is okay here. Say a customer hasn’t declared that condition and is facing a rejection because of that- 'Your claim could not be approved' and then the concrete reasoning for it.
+
+If a claim is rejected, say why in one sentence. Then say what the customer can do next.
+
+No 'Relax'. No 'Don't worry'. No 'Your health is our priority' unless it's paired with an action.
+
+Avoid like a plague: ‘We have some bad news. Your claim is rejected.’
+
+
+
+
+
+From the compliance desk- Words to avoid
+
+
+
+We’re in a regulated industry. Legal compliance is critical to protect both our business and our customers. Write with enthusiasm but avoid superlatives like:
+
+
+
+We are the best
+
+
+
+We are the most fastest
+
+
+
+You can however use any accreditation given to ACKO this way:
+
+
+
+India’s #1 rated insurance app
+
+
+
+Best Digital Insurance, 2025
+
+
+
+4. UX copy: principles, components, and rules
+
+4.1 The six UX copy principles
+
+Check if copy is required. If a design solution can replace copy and reduce cognitive load, don't write.
+
+Be very clear. Write only sentences. Explain jargon. Avoid ambiguity.
+
+Be concise. Right level of detail. No filler. Pick shorter words over longer ones.
+
+Be useful. Guide the user to their goal. Explain current status. Suggest alternative actions.
+
+Be conversational. Personal pronouns, polite, active voice, simple syntax.
+
+Be the brand. Use brand-value references. Make positive associations only.
+
+4.2 Components in a UX screen
+
+Component
+
+Purpose and rules
+
+Page title
+
+Describes the whole screen. Under 2–3 lines. No names or custom variables (changes length and meaning). Must make sense without the subtext. Sentence case. No full stop unless other punctuation is used.
+
+Heading
+
+Section-level. Same rules as page title. Should stand alone.
+
+Subtext
+
+Minimise. Most users don't read it. If the info is important, put it elsewhere. Only for secondary detail.
+
+Paragraph
+
+Full sentences. One idea per line. Break into bullets when scannable. Bold or colour the key information.
+
+CTA
+
+From the user's POV (their response to what we're saying). 4–6 words max. No punctuation, except apostrophes. See 4.3.
+
+Bottom sheet
+
+Explain or add information. Shouldn't take up more than half the screen. If content-heavy, move some copy into info boxes. CTA on a bottom sheet should always be 'Got it'.
+
+4.3 CTA rules and cheat sheet
+
+Write CTAs from the user's POV — it's their response to what we are saying.
+
+Use up to 4–6 words. Long CTAs are never effective.
+
+Never use punctuation in CTAs. Apostrophes are the only exception.
+
+Use custom CTAs for entry points and key transition screens.
+
+
+
+Situation
+
+Use this CTA
+
+At the beginning of the journey
+
+Tell me more about the plan
+
+Or during a key touchpoint
+
+See my recommended plan
+
+If you are explaining something
+
+Got it
+
+If you are showing an error, info, or end screen
+
+Okay
+
+To keep the journey going
+
+Continue
+
+ 4.3 Error and empty states

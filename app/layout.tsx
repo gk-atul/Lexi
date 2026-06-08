@@ -13,9 +13,6 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "ACKO Copy Generator",
   description: "Tone of voice powered copy generation for ACKO",
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✍️</text></svg>",
-  },
 };
 
 export default function RootLayout({

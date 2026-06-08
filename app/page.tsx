@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GeneratorForm, { GeneratorFormParams } from "@/components/GeneratorForm";
 import OutputCards, { Variant } from "@/components/OutputCards";
 import TovManager from "@/components/TovManager";
@@ -19,6 +19,8 @@ interface ChannelResult {
 
 type Mode = "idle" | "drip" | "results";
 
+const SESSION_KEY = "acko-gen-state";
+
 export default function Home() {
   const [mode, setMode] = useState<Mode>("idle");
 
@@ -33,6 +35,41 @@ export default function Home() {
 
   // Phone preview — what's shown in the left panel after generation
   const [preview, setPreview] = useState<{ channel: Channel; copy: string } | null>(null);
+
+  // ── Restore state from sessionStorage on mount (survives sign-in redirect) ──
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) {
+        const s = JSON.parse(saved);
+        if (s.mode && s.mode !== "idle") {
+          setMode(s.mode);
+          setChannelResults(s.channelResults ?? {});
+          setActiveChannel(s.activeChannel ?? null);
+          setLastParams(s.lastParams ?? null);
+          setPreview(s.preview ?? null);
+          setDripParams(s.dripParams ?? null);
+        }
+      }
+    } catch {
+      // ignore malformed storage
+    }
+  }, []);
+
+  // ── Persist state to sessionStorage whenever it changes ─────────────────────
+  useEffect(() => {
+    if (mode === "idle") {
+      sessionStorage.removeItem(SESSION_KEY);
+    } else {
+      try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+          mode, channelResults, activeChannel, lastParams, preview, dripParams,
+        }));
+      } catch {
+        // storage full or unavailable — ignore
+      }
+    }
+  }, [mode, channelResults, activeChannel, lastParams, preview, dripParams]);
 
   // ── Non-drip: generate for one channel ──────────────────────────────────────
   const generateChannel = async (
@@ -97,6 +134,7 @@ export default function Home() {
   };
 
   const handleGoBack = () => {
+    sessionStorage.removeItem(SESSION_KEY);
     setMode("idle");
     setPreview(null);
     setChannelResults({});

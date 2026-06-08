@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession, signIn } from "next-auth/react";
 import { exportToDoc } from "@/lib/export-doc";
 
 interface CrmScores {
@@ -840,6 +841,9 @@ interface CardProps {
 }
 
 function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, userState, context, onFeedbackChange, onPreview }: CardProps) {
+  const { data: session } = useSession();
+  const isWriter = (session?.user as { isWriter?: boolean })?.isWriter ?? false;
+
   const [edited, setEdited] = useState(variant.copy);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -954,33 +958,47 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
           Variant {index + 1}
         </span>
         <div className="flex gap-2 items-center">
-          {/* Feedback buttons */}
-          <div className="flex gap-1 mr-1">
+          {/* Feedback buttons — writers only */}
+          {isWriter ? (
+            <div className="flex gap-1 mr-1">
+              <button
+                onClick={() => handleFeedback("good")}
+                disabled={feedbackPending}
+                title={verdict === "good" ? "Remove good rating" : "Mark as good"}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all text-sm ${
+                  verdict === "good"
+                    ? "bg-[#DCFCE7] text-[#16A34A] ring-1 ring-[#BBF7D0]"
+                    : "bg-[#F5F5F5] text-[#B7B7B8] hover:bg-[#DCFCE7] hover:text-[#16A34A]"
+                } disabled:opacity-40`}
+              >
+                👍
+              </button>
+              <button
+                onClick={() => handleFeedback("bad")}
+                disabled={feedbackPending}
+                title={verdict === "bad" ? "Remove bad rating" : "Mark as bad"}
+                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all text-sm ${
+                  verdict === "bad"
+                    ? "bg-[#FEE2E2] text-[#DC2626] ring-1 ring-[#FECACA]"
+                    : "bg-[#F5F5F5] text-[#B7B7B8] hover:bg-[#FEE2E2] hover:text-[#DC2626]"
+                } disabled:opacity-40`}
+              >
+                👎
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={() => handleFeedback("good")}
-              disabled={feedbackPending}
-              title={verdict === "good" ? "Remove good rating" : "Mark as good"}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all text-sm ${
-                verdict === "good"
-                  ? "bg-[#DCFCE7] text-[#16A34A] ring-1 ring-[#BBF7D0]"
-                  : "bg-[#F5F5F5] text-[#B7B7B8] hover:bg-[#DCFCE7] hover:text-[#16A34A]"
-              } disabled:opacity-40`}
+              onClick={() => signIn("google")}
+              title="Sign in as a writer to rate"
+              className="flex items-center gap-1 text-[11px] text-[#B7B7B8] hover:text-[#6841E6] mr-1 transition-colors"
             >
-              👍
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" strokeWidth="1.8"/>
+                <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              Rate
             </button>
-            <button
-              onClick={() => handleFeedback("bad")}
-              disabled={feedbackPending}
-              title={verdict === "bad" ? "Remove bad rating" : "Mark as bad"}
-              className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all text-sm ${
-                verdict === "bad"
-                  ? "bg-[#FEE2E2] text-[#DC2626] ring-1 ring-[#FECACA]"
-                  : "bg-[#F5F5F5] text-[#B7B7B8] hover:bg-[#FEE2E2] hover:text-[#DC2626]"
-              } disabled:opacity-40`}
-            >
-              👎
-            </button>
-          </div>
+          )}
           {(isPush || isWhatsApp) && onPreview && (
             <button
               onClick={() => onPreview(edited)}

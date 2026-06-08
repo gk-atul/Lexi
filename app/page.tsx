@@ -9,6 +9,7 @@ import DripCalendar from "@/components/DripCalendar";
 import { ScaledMockup } from "@/components/PhoneMockup";
 import { Channel, PnFramework, CHANNEL_LABELS, PRODUCT_LABELS, USE_CASE_LABELS } from "@/lib/prompts";
 import LearningPanel from "@/components/LearningPanel";
+import WriterBadge from "@/components/WriterBadge";
 
 interface ChannelResult {
   variants: Variant[];
@@ -124,12 +125,13 @@ export default function Home() {
           <div className="w-8 h-8 bg-[#6841E6] rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-xs">A</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-[#0A0A0A] leading-tight">
               ACKO Copy Generator
             </h1>
             <p className="text-xs text-[#605F63]">Tone of voice — powered</p>
           </div>
+          <WriterBadge />
         </div>
       </header>
 

@@ -3,7 +3,23 @@ import path from "path";
 import fs from "fs";
 
 const DATA_DIR = path.join(process.cwd(), "data");
-const DB_PATH = path.join(DATA_DIR, "feedback.db");
+const STATIC_DB_PATH = path.join(DATA_DIR, "feedback.db");
+
+// On Vercel the project root is read-only; use /tmp so SQLite can write.
+// Seed /tmp from the committed DB on first cold-start so existing TOV/feedback data carries over.
+function resolveDbPath(): string {
+  if (!process.env.VERCEL) return STATIC_DB_PATH;
+  const tmp = "/tmp/angelou.db";
+  if (!fs.existsSync(tmp) && fs.existsSync(STATIC_DB_PATH)) {
+    fs.copyFileSync(STATIC_DB_PATH, tmp);
+    // WAL/SHM files aren't needed for the copy — SQLite will recreate them in /tmp
+    try { fs.unlinkSync(tmp + "-wal"); } catch { /* ignore */ }
+    try { fs.unlinkSync(tmp + "-shm"); } catch { /* ignore */ }
+  }
+  return tmp;
+}
+
+const DB_PATH = resolveDbPath();
 
 export type Verdict = "good" | "bad";
 

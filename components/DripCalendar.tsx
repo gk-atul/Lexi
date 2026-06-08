@@ -65,6 +65,8 @@ export default function DripCalendar({
   nonNegotiables,
   referenceText,
 }: Props) {
+  // Stable journey ID scoped to this DripCalendar mount — used by journey-memory Layer 2
+  const [journeyId] = useState(() => crypto.randomUUID());
   const [localDays, setLocalDays] = useState(totalDays);
   const [editingDays, setEditingDays] = useState(false);
 
@@ -144,6 +146,7 @@ export default function DripCalendar({
             channel: ch, product: lob, useCase,
             context: effectiveContext, variantCount,
             dripDay: day, dripTotal: localDays,
+            journeyId,
             userDescription: userDescription || undefined,
             commType: commType || undefined,
             desiredAction: desiredAction || undefined,
@@ -165,7 +168,7 @@ export default function DripCalendar({
         }));
       }
     },
-    [lob, useCase, context, variantCount, localDays, onCellPreview, userDescription, commType, desiredAction, nonNegotiables, referenceText]
+    [lob, useCase, context, variantCount, localDays, journeyId, onCellPreview, userDescription, commType, desiredAction, nonNegotiables, referenceText]
   );
 
   const generateAll = async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { exportToDoc } from "@/lib/export-doc";
 
@@ -870,6 +870,8 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
   const [verdict, setVerdict] = useState<"good" | "bad" | null>(null);
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
   const [feedbackPending, setFeedbackPending] = useState(false);
+  // Tracks text at the moment "Edit" is clicked, for edit-event diffing
+  const editStartTextRef = useRef<string>("");
 
   // Sync if parent variant changes (e.g. channel switch)
   useEffect(() => {
@@ -1092,7 +1094,29 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
             </button>
           )}
           <button
-            onClick={() => setIsEditing(!isEditing)}
+            onClick={() => {
+              if (!isEditing) {
+                // Entering edit mode — snapshot the current text
+                editStartTextRef.current = edited;
+                setIsEditing(true);
+              } else {
+                // Leaving edit mode — fire edit event if text changed
+                setIsEditing(false);
+                if (edited !== editStartTextRef.current) {
+                  fetch("/api/edit-event", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      channel: channelKey,
+                      useCase: generateParams?.useCase ?? "",
+                      commType: generateParams?.commType ?? "",
+                      generatedText: editStartTextRef.current,
+                      editedText: edited,
+                    }),
+                  }).catch(() => {/* non-fatal */});
+                }
+              }
+            }}
             className="text-[12px] font-medium text-[#605F63] hover:text-[#0A0A0A] border border-[#E0E0E1] hover:border-[#B7B7B8] rounded-full px-3 py-1 transition-colors"
           >
             {isEditing ? "Done" : "Edit"}

@@ -370,6 +370,53 @@ export interface BriefFields {
   tone?: ToneDial;
 }
 
+export interface ProceduralRuleInput {
+  rule: string;
+  strength: number;
+}
+
+export interface JourneyContextInput {
+  days_completed: Array<{ day: number; headline: string; strategy: string; hook_type: string }>;
+  strategies_used: string[];
+  hooks_used: string[];
+  constraints_for_next: {
+    avoid_strategies: string[];
+    avoid_hooks: string[];
+    suggested_escalation: string;
+  };
+}
+
+function buildProceduralRulesBlock(rules: ProceduralRuleInput[]): string {
+  if (rules.length === 0) return "";
+  const strengthLabel = (s: number) => s >= 0.7 ? "high confidence" : s >= 0.5 ? "medium confidence" : "emerging pattern";
+  return [
+    "\n--- WRITER EDITING RULES (learned from past edits — apply these) ---",
+    "These patterns were extracted from how writers at ACKO consistently edit generated copy.",
+    "They represent editorial preferences that override default style choices:",
+    ...rules.map((r, i) => `${i + 1}. ${r.rule} [${strengthLabel(r.strength)}]`),
+    "--- END WRITER EDITING RULES ---\n",
+  ].join("\n");
+}
+
+function buildJourneyContextBlock(ctx: JourneyContextInput): string {
+  const dayLines = ctx.days_completed.map(
+    (d) => `  Day ${d.day}: "${d.headline}" — strategy: ${d.strategy}, hook: ${d.hook_type}`
+  );
+  return [
+    "\nJOURNEY HISTORY FOR THIS CAMPAIGN:",
+    ...dayLines,
+    "",
+    `Strategies used so far: ${ctx.strategies_used.join(", ")}`,
+    `Hook types used so far: ${ctx.hooks_used.join(", ")}`,
+    "",
+    "CONSTRAINTS FOR TODAY'S COPY:",
+    `- Do not use these hook types: ${ctx.constraints_for_next.avoid_hooks.join(", ") || "none"}`,
+    `- Do not use these strategies: ${ctx.constraints_for_next.avoid_strategies.join(", ") || "none"}`,
+    `- Escalation guidance: ${ctx.constraints_for_next.suggested_escalation}`,
+    "",
+  ].join("\n");
+}
+
 export function buildPrompt(
   tov: string,
   channel: Channel,
@@ -381,7 +428,9 @@ export function buildPrompt(
   feedbackExamples?: { good: FeedbackExample[]; bad: FeedbackExample[] },
   dripContext?: { day: number; totalDays: number },
   learnedInsights?: string[],
-  brief?: BriefFields
+  brief?: BriefFields,
+  proceduralRules?: ProceduralRuleInput[],
+  journeyContext?: JourneyContextInput
 ): string {
   const feedbackBlock = feedbackExamples
     ? buildFeedbackBlock(feedbackExamples.good, feedbackExamples.bad)
@@ -402,6 +451,14 @@ export function buildPrompt(
     ? buildDripBlock(dripContext.day, dripContext.totalDays)
     : "";
 
+  const proceduralRulesBlock = proceduralRules && proceduralRules.length > 0
+    ? buildProceduralRulesBlock(proceduralRules)
+    : "";
+
+  const journeyContextBlock = journeyContext
+    ? buildJourneyContextBlock(journeyContext)
+    : "";
+
   return `You are a copy and communications generator for ACKO, an Indian digital insurance company.
 
 Below is ACKO's complete Tone of Voice guide. Follow it exactly.
@@ -412,9 +469,9 @@ ${tov}
 ---
 
 ${CHANNEL_RULES[channel]}
-${pnFramework && channel === "push" ? `\n${PN_FRAMEWORK_RULES[pnFramework]}\n` : ""}${feedbackBlock}${insightsBlock}LINE OF BUSINESS: ${PRODUCT_LABELS[product]}
+${pnFramework && channel === "push" ? `\n${PN_FRAMEWORK_RULES[pnFramework]}\n` : ""}${feedbackBlock}${insightsBlock}${proceduralRulesBlock}LINE OF BUSINESS: ${PRODUCT_LABELS[product]}
 USE CASE TYPE: ${useCase ? USE_CASE_LABELS[useCase] : "General"}${useCase === "promotional" ? " — drop-off re-engagement, new campaign/launch, general engagement, offers and discounts" : useCase === "utility" ? " — renewals, service messages, VAS messages, reward statements" : ""}
-${dripBlock}${brief?.tone && brief.tone !== "balanced" ? `TONE DIAL — ${brief.tone === "warm" ? "WARMER THAN DEFAULT: Lean more empathetic and conversational than ACKO's standard voice. Prioritise warmth and reassurance. Softer sentence structures, slightly more human. Still clear and plain — not sentimental." : "MORE DIRECT THAN DEFAULT: Leaner than ACKO's standard voice. Shorter sentences, fewer softeners, get to the point faster. Strip qualifiers. Professional but efficient — no padding."}\n` : ""}${brief?.userDescription ? `WHO YOU'RE WRITING TO: ${brief.userDescription}\n` : ""}${brief?.commType ? `COMM TYPE: ${brief.commType.toUpperCase()} — ${brief.commType === "informational" ? "explaining a benefit, policy detail, or process the user needs to know" : brief.commType === "feature" ? "introducing a new product, plan, or capability" : "discount, offer, or a concrete reason to act now"}\n` : ""}CONTEXT / WHY YOU'RE SAYING IT: ${context}
+${dripBlock}${journeyContextBlock}${brief?.tone && brief.tone !== "balanced" ? `TONE DIAL — ${brief.tone === "warm" ? "WARMER THAN DEFAULT: Lean more empathetic and conversational than ACKO's standard voice. Prioritise warmth and reassurance. Softer sentence structures, slightly more human. Still clear and plain — not sentimental." : "MORE DIRECT THAN DEFAULT: Leaner than ACKO's standard voice. Shorter sentences, fewer softeners, get to the point faster. Strip qualifiers. Professional but efficient — no padding."}\n` : ""}${brief?.userDescription ? `WHO YOU'RE WRITING TO: ${brief.userDescription}\n` : ""}${brief?.commType ? `COMM TYPE: ${brief.commType.toUpperCase()} — ${brief.commType === "informational" ? "explaining a benefit, policy detail, or process the user needs to know" : brief.commType === "feature" ? "introducing a new product, plan, or capability" : "discount, offer, or a concrete reason to act now"}\n` : ""}CONTEXT / WHY YOU'RE SAYING IT: ${context}
 ${brief?.desiredAction ? `WHAT WE WANT THE USER TO DO: ${brief.desiredAction}\n` : ""}${brief?.nonNegotiables ? `NON-NEGOTIABLES (must follow exactly): ${brief.nonNegotiables}\n` : ""}${brief?.referenceText ? `\nREFERENCE MATERIAL (study tone, structure, and specifics from these; do not copy verbatim):\n---\n${brief.referenceText}\n---\n` : ""}
 
 Generate ${variantCount} distinct copy variant${variantCount > 1 ? "s" : ""} for the above.

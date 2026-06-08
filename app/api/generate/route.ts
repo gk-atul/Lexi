@@ -1,8 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { getTov } from "@/lib/tov-store";
-import { buildPrompt, Channel, Product, UseCase, PnFramework, BriefFields } from "@/lib/prompts";
+import { buildPrompt, Channel, Product, UseCase, PnFramework, BriefFields, ProceduralRuleInput, JourneyContextInput } from "@/lib/prompts";
 import { getRelevantExamples, getInsights } from "@/lib/feedback-store";
+import { getProceduralRules } from "@/lib/edit-memory";
+import { getJourneyContext, recordJourneyGeneration } from "@/lib/journey-memory";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -24,6 +26,7 @@ export async function POST(req: NextRequest) {
       nonNegotiables,
       referenceText,
       tone,
+      journeyId,
     } = await req.json();
 
     if (!channel || !product || !context) {
@@ -39,6 +42,19 @@ export async function POST(req: NextRequest) {
     const insightsData = getInsights(channel, product, resolvedUserState);
     const dripContext =
       dripDay && dripTotal ? { day: dripDay, totalDays: dripTotal } : undefined;
+
+    // ── Layer 1: procedural rules from edit memory ────────────────────────
+    const rawRules = getProceduralRules(useCase ?? "", channel, commType ?? "");
+    const proceduralRules: ProceduralRuleInput[] = rawRules.map((r) => ({
+      rule: r.rule, strength: r.strength,
+    }));
+
+    // ── Layer 2: journey context (drip only, day > 1) ─────────────────────
+    let journeyContext: JourneyContextInput | undefined;
+    if (journeyId && dripDay && dripTotal && dripDay > 1) {
+      const ctx = getJourneyContext(journeyId, dripDay, dripTotal);
+      if (ctx) journeyContext = ctx;
+    }
 
     const brief: BriefFields = {
       userDescription: userDescription || undefined,
@@ -60,7 +76,9 @@ export async function POST(req: NextRequest) {
       feedbackExamples,
       dripContext,
       insightsData.insights.length > 0 ? insightsData.insights : undefined,
-      brief
+      brief,
+      proceduralRules.length > 0 ? proceduralRules : undefined,
+      journeyContext
     );
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
@@ -118,6 +136,28 @@ export async function POST(req: NextRequest) {
 
       return { ...v, copy };
     });
+
+    // ── Layer 2: persist first variant to journey memory ──────────────────
+    if (journeyId && dripDay && normalised.length > 0) {
+      const first = normalised[0];
+      const rawCopy: string = first.copy ?? "";
+      const copyLines = rawCopy.split("\n").filter(Boolean);
+      const headline = channel === "push" ? (copyLines[0] ?? "") : rawCopy.split(/\n\n/)[0] ?? rawCopy.slice(0, 80);
+      const body     = channel === "push" ? copyLines.slice(1).join(" ") : rawCopy;
+      try {
+        recordJourneyGeneration({
+          journeyId,
+          day:      dripDay,
+          channel,
+          useCase:  useCase ?? "",
+          headline,
+          body,
+          formula:  first.formula,
+        });
+      } catch (e) {
+        console.warn("journey-memory save failed (non-fatal):", e);
+      }
+    }
 
     return NextResponse.json({ variants: normalised });
   } catch (err) {

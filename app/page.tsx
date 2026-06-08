@@ -8,6 +8,7 @@ import PnFrameworkPicker from "@/components/PnFrameworkPicker";
 import DripCalendar from "@/components/DripCalendar";
 import { ScaledMockup } from "@/components/PhoneMockup";
 import { Channel, PnFramework, CHANNEL_LABELS, PRODUCT_LABELS, USE_CASE_LABELS } from "@/lib/prompts";
+import { GenerateParams } from "@/components/OutputCards";
 import LearningPanel from "@/components/LearningPanel";
 import WriterBadge from "@/components/WriterBadge";
 
@@ -97,6 +98,7 @@ export default function Home() {
           desiredAction: params.desiredAction || undefined,
           nonNegotiables: params.nonNegotiables || undefined,
           referenceText: params.referenceText || undefined,
+          tone: params.tone !== "balanced" ? params.tone : undefined,
         }),
       });
       const data = await res.json();
@@ -345,6 +347,18 @@ export default function Home() {
                     product={PRODUCT_LABELS[lastParams.lob]}
                     userState={USE_CASE_LABELS[lastParams.useCase]}
                     context={lastParams.context}
+                    generateParams={{
+                      product: lastParams.lob,
+                      useCase: lastParams.useCase,
+                      context: lastParams.context,
+                      userDescription: lastParams.userDescription || undefined,
+                      commType: lastParams.commType || undefined,
+                      desiredAction: lastParams.desiredAction || undefined,
+                      nonNegotiables: lastParams.nonNegotiables || undefined,
+                      referenceText: lastParams.referenceText || undefined,
+                      tone: lastParams.tone !== "balanced" ? lastParams.tone : undefined,
+                      pnFramework: activeFramework,
+                    } satisfies GenerateParams}
                     onPreview={(copy) => setPreview({ channel: activeChannel, copy })}
                   />
                 ) : null}

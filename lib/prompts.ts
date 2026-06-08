@@ -359,12 +359,15 @@ ANTI-DUPLICATION RULES (strictly enforced):
 `;
 }
 
+export type ToneDial = "warm" | "balanced" | "direct";
+
 export interface BriefFields {
   userDescription?: string;
   commType?: "informational" | "feature" | "incentive" | "";
   desiredAction?: string;
   nonNegotiables?: string;
   referenceText?: string;
+  tone?: ToneDial;
 }
 
 export function buildPrompt(
@@ -411,7 +414,7 @@ ${tov}
 ${CHANNEL_RULES[channel]}
 ${pnFramework && channel === "push" ? `\n${PN_FRAMEWORK_RULES[pnFramework]}\n` : ""}${feedbackBlock}${insightsBlock}LINE OF BUSINESS: ${PRODUCT_LABELS[product]}
 USE CASE TYPE: ${useCase ? USE_CASE_LABELS[useCase] : "General"}${useCase === "promotional" ? " — drop-off re-engagement, new campaign/launch, general engagement, offers and discounts" : useCase === "utility" ? " — renewals, service messages, VAS messages, reward statements" : ""}
-${dripBlock}${brief?.userDescription ? `WHO YOU'RE WRITING TO: ${brief.userDescription}\n` : ""}${brief?.commType ? `COMM TYPE: ${brief.commType.toUpperCase()} — ${brief.commType === "informational" ? "explaining a benefit, policy detail, or process the user needs to know" : brief.commType === "feature" ? "introducing a new product, plan, or capability" : "discount, offer, or a concrete reason to act now"}\n` : ""}CONTEXT / WHY YOU'RE SAYING IT: ${context}
+${dripBlock}${brief?.tone && brief.tone !== "balanced" ? `TONE DIAL — ${brief.tone === "warm" ? "WARMER THAN DEFAULT: Lean more empathetic and conversational than ACKO's standard voice. Prioritise warmth and reassurance. Softer sentence structures, slightly more human. Still clear and plain — not sentimental." : "MORE DIRECT THAN DEFAULT: Leaner than ACKO's standard voice. Shorter sentences, fewer softeners, get to the point faster. Strip qualifiers. Professional but efficient — no padding."}\n` : ""}${brief?.userDescription ? `WHO YOU'RE WRITING TO: ${brief.userDescription}\n` : ""}${brief?.commType ? `COMM TYPE: ${brief.commType.toUpperCase()} — ${brief.commType === "informational" ? "explaining a benefit, policy detail, or process the user needs to know" : brief.commType === "feature" ? "introducing a new product, plan, or capability" : "discount, offer, or a concrete reason to act now"}\n` : ""}CONTEXT / WHY YOU'RE SAYING IT: ${context}
 ${brief?.desiredAction ? `WHAT WE WANT THE USER TO DO: ${brief.desiredAction}\n` : ""}${brief?.nonNegotiables ? `NON-NEGOTIABLES (must follow exactly): ${brief.nonNegotiables}\n` : ""}${brief?.referenceText ? `\nREFERENCE MATERIAL (study tone, structure, and specifics from these; do not copy verbatim):\n---\n${brief.referenceText}\n---\n` : ""}
 
 Generate ${variantCount} distinct copy variant${variantCount > 1 ? "s" : ""} for the above.

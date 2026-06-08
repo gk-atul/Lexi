@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       desiredAction,
       nonNegotiables,
       referenceText,
+      tone,
     } = await req.json();
 
     if (!channel || !product || !context) {
@@ -45,6 +46,7 @@ export async function POST(req: NextRequest) {
       desiredAction: desiredAction || undefined,
       nonNegotiables: nonNegotiables || undefined,
       referenceText: referenceText || undefined,
+      tone: tone || undefined,
     };
 
     const prompt = buildPrompt(

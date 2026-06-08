@@ -1,8 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { exportToDoc } from "@/lib/export-doc";
+
+export interface GenerateParams {
+  product: string;
+  useCase: string;
+  context: string;
+  userDescription?: string;
+  commType?: string;
+  desiredAction?: string;
+  nonNegotiables?: string;
+  referenceText?: string;
+  tone?: string;
+  pnFramework?: string | null;
+}
 
 interface CrmScores {
   key_hook: number;
@@ -836,23 +849,71 @@ interface CardProps {
   product: string;
   userState: string;
   context: string;
+  generateParams?: GenerateParams;
+  onVariantUpdate?: (index: number, variant: Variant) => void;
   onFeedbackChange?: () => void;
   onPreview?: (copy: string) => void;
 }
 
-function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, userState, context, onFeedbackChange, onPreview }: CardProps) {
+function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, userState, context, generateParams, onVariantUpdate, onFeedbackChange, onPreview }: CardProps) {
   const { data: session } = useSession();
   const isWriter = (session?.user as { isWriter?: boolean })?.isWriter ?? false;
 
+  const [currentVariant, setCurrentVariant] = useState(variant);
   const [edited, setEdited] = useState(variant.copy);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [instruction, setInstruction] = useState("");
   const [refining, setRefining] = useState(false);
   const [refineError, setRefineError] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
   const [verdict, setVerdict] = useState<"good" | "bad" | null>(null);
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
   const [feedbackPending, setFeedbackPending] = useState(false);
+
+  // Sync if parent variant changes (e.g. channel switch)
+  useEffect(() => {
+    setCurrentVariant(variant);
+    setEdited(variant.copy);
+    setVerdict(null);
+    setFeedbackId(null);
+  }, [variant]);
+
+  const handleRegenerate = async () => {
+    if (!generateParams || regenerating) return;
+    setRegenerating(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: channelKey,
+          variantCount: 1,
+          product: generateParams.product,
+          useCase: generateParams.useCase,
+          context: generateParams.context,
+          pnFramework: generateParams.pnFramework ?? undefined,
+          userDescription: generateParams.userDescription,
+          commType: generateParams.commType,
+          desiredAction: generateParams.desiredAction,
+          nonNegotiables: generateParams.nonNegotiables,
+          referenceText: generateParams.referenceText,
+          tone: generateParams.tone,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.variants?.[0]) {
+        const newVariant = data.variants[0] as Variant;
+        setCurrentVariant(newVariant);
+        setEdited(newVariant.copy);
+        setVerdict(null);
+        setFeedbackId(null);
+        onVariantUpdate?.(index, newVariant);
+      }
+    } finally {
+      setRegenerating(false);
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(edited);
@@ -958,6 +1019,25 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
           Variant {index + 1}
         </span>
         <div className="flex gap-2 items-center">
+          {/* Regenerate this variant */}
+          {generateParams && (
+            <button
+              type="button"
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              title="Regenerate this variant"
+              className="w-7 h-7 rounded-lg flex items-center justify-center bg-[#F5F5F5] text-[#B7B7B8] hover:bg-[#EAEAFD] hover:text-[#6841E6] transition-all disabled:opacity-40"
+            >
+              {regenerating ? (
+                <div className="w-3.5 h-3.5 border-2 border-[#6841E6] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                  <path d="M13.5 2.5A6.5 6.5 0 118 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M13.5 2.5V5.5H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+            </button>
+          )}
           {/* Feedback buttons — writers only */}
           {isWriter ? (
             <div className="flex gap-1 mr-1">
@@ -1064,12 +1144,19 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
           })()}
         </div>
       ) : (
-        <p className="text-[14px] text-[#141414] leading-relaxed whitespace-pre-wrap">
-          {edited}
-        </p>
+        <div>
+          <p className="text-[14px] text-[#141414] leading-relaxed whitespace-pre-wrap">
+            {edited}
+          </p>
+          {!isPush && (
+            <p className={`mt-1.5 text-[11px] tabular-nums text-right ${edited.length > 160 && isWhatsApp ? "text-[#EAB308]" : "text-[#B7B7B8]"}`}>
+              {edited.length} chars
+            </p>
+          )}
+        </div>
       )}
 
-      <CrmPanel scores={variant.crm_scores} total={computeCrmTotal(variant.crm_scores)} />
+      <CrmPanel scores={currentVariant.crm_scores} total={computeCrmTotal(currentVariant.crm_scores)} />
 
       {/* ── AI refine bar ─────────────────────────────────────────────────── */}
       <div className="mt-4 border-t border-[#E0E0E1] pt-3">
@@ -1145,14 +1232,23 @@ interface Props {
   product: string;
   userState: string;
   context: string;
+  generateParams?: GenerateParams;
   onPreview?: (copy: string) => void;
 }
 
-export default function OutputCards({ variants, channelKey, channel, product, userState, context, onPreview }: Props) {
+export default function OutputCards({ variants, channelKey, channel, product, userState, context, generateParams, onPreview }: Props) {
   const isPush = channelKey === "push";
   const isWhatsApp = channelKey === "whatsapp";
+  const [localVariants, setLocalVariants] = useState<Variant[]>(variants);
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [exporting, setExporting] = useState(false);
+
+  // Keep local copy in sync when parent variants change (e.g. channel switch)
+  useEffect(() => { setLocalVariants(variants); }, [variants]);
+
+  const handleVariantUpdate = (index: number, updated: Variant) => {
+    setLocalVariants((prev) => prev.map((v, i) => i === index ? updated : v));
+  };
 
   // Load stats once on mount, and refresh whenever a child signals a change
   const refreshStats = () => {
@@ -1167,7 +1263,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportToDoc({ channel, product, userState, context, variants });
+      await exportToDoc({ channel, product, userState, context, variants: localVariants });
     } finally {
       setExporting(false);
     }
@@ -1177,7 +1273,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-[14px] font-semibold text-[#141414]">
-          {variants.length} variant{variants.length !== 1 ? "s" : ""} —{" "}
+          {localVariants.length} variant{localVariants.length !== 1 ? "s" : ""} —{" "}
           <span className="text-[#605F63] font-normal">
             {channel} · {product}
           </span>
@@ -1214,7 +1310,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
         </div>
       </div>
       <div className="space-y-4">
-        {variants.map((v, i) => (
+        {localVariants.map((v, i) => (
           <OutputCard
             key={i}
             variant={v}
@@ -1225,10 +1321,11 @@ export default function OutputCards({ variants, channelKey, channel, product, us
             product={product}
             userState={userState}
             context={context}
+            generateParams={generateParams}
+            onVariantUpdate={handleVariantUpdate}
             onFeedbackChange={refreshStats}
             onPreview={onPreview}
           />
-
         ))}
       </div>
     </div>

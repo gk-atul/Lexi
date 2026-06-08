@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Channel, Product, UseCase } from "@/lib/prompts";
+import { Channel, Product, UseCase, ToneDial } from "@/lib/prompts";
 
 const LOB_OPTIONS: { value: Product; label: string }[] = [
   { value: "auto", label: "Auto" },
@@ -15,6 +15,12 @@ const CHANNEL_OPTIONS: { value: Channel; label: string; wip?: boolean }[] = [
   { value: "whatsapp", label: "WhatsApp" },
   { value: "sms" as Channel, label: "SMS", wip: true },
   { value: "email", label: "Email" },
+];
+
+const TONE_OPTIONS: { value: ToneDial; label: string; hint: string }[] = [
+  { value: "warm",     label: "Warm",     hint: "Empathetic, reassuring, slightly softer" },
+  { value: "balanced", label: "Balanced", hint: "ACKO's default voice" },
+  { value: "direct",   label: "Direct",   hint: "Sharper, fewer softeners, gets to the point" },
 ];
 
 const COMM_TYPE_OPTIONS = [
@@ -49,6 +55,7 @@ export interface GeneratorFormParams {
   desiredAction: string;
   nonNegotiables: string;
   referenceText: string;
+  tone: ToneDial;
   variantCount: number;
 }
 
@@ -69,6 +76,7 @@ export default function GeneratorForm({ onGenerate, loading }: Props) {
   const [desiredAction, setDesiredAction] = useState("");
   const [nonNegotiables, setNonNegotiables] = useState("");
   const [referenceText, setReferenceText] = useState("");
+  const [tone, setTone] = useState<ToneDial>("balanced");
   const [variantCount, setVariantCount] = useState(3);
   const [showUserTip, setShowUserTip] = useState(false);
   const [refFileName, setRefFileName] = useState<string | null>(null);
@@ -147,6 +155,7 @@ export default function GeneratorForm({ onGenerate, loading }: Props) {
       desiredAction,
       nonNegotiables,
       referenceText,
+      tone,
       variantCount,
     });
   };
@@ -417,6 +426,26 @@ export default function GeneratorForm({ onGenerate, loading }: Props) {
           placeholder="Paste reference text — past comms that worked, feature specs, USP wording, product notes…"
           className={textareaClass}
         />
+      </div>
+
+      {/* ── Section 12: Tone dial ────────────────────────────────────── */}
+      <div>
+        <p className={`${labelClass} mb-2`}>Tone</p>
+        <div className="flex gap-2">
+          {TONE_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTone(value)}
+              className={pillClass(tone === value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[12px] text-[#B7B7B8] italic">
+          {TONE_OPTIONS.find((o) => o.value === tone)?.hint}
+        </p>
       </div>
 
       {/* ── Submit + variant count ────────────────────────────────────── */}

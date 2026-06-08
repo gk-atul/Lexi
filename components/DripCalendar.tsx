@@ -42,6 +42,11 @@ interface Props {
   context: string;
   variantCount: number;
   onCellPreview?: (channel: Channel, copy: string) => void;
+  userDescription?: string;
+  commType?: string;
+  desiredAction?: string;
+  nonNegotiables?: string;
+  referenceText?: string;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -54,6 +59,11 @@ export default function DripCalendar({
   context,
   variantCount,
   onCellPreview,
+  userDescription,
+  commType,
+  desiredAction,
+  nonNegotiables,
+  referenceText,
 }: Props) {
   const [plan, setPlan] = useState<DripPlan>(() => {
     const init: DripPlan = {};
@@ -106,6 +116,11 @@ export default function DripCalendar({
             channel: ch, product: lob, useCase,
             context: effectiveContext, variantCount,
             dripDay: day, dripTotal: totalDays,
+            userDescription: userDescription || undefined,
+            commType: commType || undefined,
+            desiredAction: desiredAction || undefined,
+            nonNegotiables: nonNegotiables || undefined,
+            referenceText: referenceText || undefined,
           }),
         });
         const data = await res.json();
@@ -122,7 +137,7 @@ export default function DripCalendar({
         }));
       }
     },
-    [lob, useCase, context, variantCount, totalDays, onCellPreview]
+    [lob, useCase, context, variantCount, totalDays, onCellPreview, userDescription, commType, desiredAction, nonNegotiables, referenceText]
   );
 
   const generateAll = async () => {

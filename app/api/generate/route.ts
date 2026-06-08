@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { getTov } from "@/lib/tov-store";
-import { buildPrompt, Channel, Product, UseCase, PnFramework } from "@/lib/prompts";
+import { buildPrompt, Channel, Product, UseCase, PnFramework, BriefFields } from "@/lib/prompts";
 import { getRelevantExamples, getInsights } from "@/lib/feedback-store";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
       pnFramework,
       dripDay,
       dripTotal,
+      userDescription,
+      commType,
+      desiredAction,
+      nonNegotiables,
+      referenceText,
     } = await req.json();
 
     if (!channel || !product || !context) {
@@ -34,6 +39,14 @@ export async function POST(req: NextRequest) {
     const dripContext =
       dripDay && dripTotal ? { day: dripDay, totalDays: dripTotal } : undefined;
 
+    const brief: BriefFields = {
+      userDescription: userDescription || undefined,
+      commType: commType || undefined,
+      desiredAction: desiredAction || undefined,
+      nonNegotiables: nonNegotiables || undefined,
+      referenceText: referenceText || undefined,
+    };
+
     const prompt = buildPrompt(
       tov,
       channel as Channel,
@@ -44,7 +57,8 @@ export async function POST(req: NextRequest) {
       pnFramework as PnFramework | undefined,
       feedbackExamples,
       dripContext,
-      insightsData.insights.length > 0 ? insightsData.insights : undefined
+      insightsData.insights.length > 0 ? insightsData.insights : undefined,
+      brief
     );
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });

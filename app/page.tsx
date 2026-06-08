@@ -55,6 +55,11 @@ export default function Home() {
           context: params.context,
           variantCount: params.variantCount,
           pnFramework: pnFramework ?? undefined,
+          userDescription: params.userDescription || undefined,
+          commType: params.commType || undefined,
+          desiredAction: params.desiredAction || undefined,
+          nonNegotiables: params.nonNegotiables || undefined,
+          referenceText: params.referenceText || undefined,
         }),
       });
       const data = await res.json();
@@ -230,6 +235,11 @@ export default function Home() {
                   context={dripParams.context}
                   variantCount={dripParams.variantCount}
                   onCellPreview={(ch, copy) => setPreview({ channel: ch, copy })}
+                  userDescription={dripParams.userDescription || undefined}
+                  commType={dripParams.commType || undefined}
+                  desiredAction={dripParams.desiredAction || undefined}
+                  nonNegotiables={dripParams.nonNegotiables || undefined}
+                  referenceText={dripParams.referenceText || undefined}
                 />
               </div>
             )}

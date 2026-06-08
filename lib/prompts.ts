@@ -359,6 +359,14 @@ ANTI-DUPLICATION RULES (strictly enforced):
 `;
 }
 
+export interface BriefFields {
+  userDescription?: string;
+  commType?: "informational" | "feature" | "incentive" | "";
+  desiredAction?: string;
+  nonNegotiables?: string;
+  referenceText?: string;
+}
+
 export function buildPrompt(
   tov: string,
   channel: Channel,
@@ -369,7 +377,8 @@ export function buildPrompt(
   pnFramework?: PnFramework,
   feedbackExamples?: { good: FeedbackExample[]; bad: FeedbackExample[] },
   dripContext?: { day: number; totalDays: number },
-  learnedInsights?: string[]
+  learnedInsights?: string[],
+  brief?: BriefFields
 ): string {
   const feedbackBlock = feedbackExamples
     ? buildFeedbackBlock(feedbackExamples.good, feedbackExamples.bad)
@@ -402,7 +411,8 @@ ${tov}
 ${CHANNEL_RULES[channel]}
 ${pnFramework && channel === "push" ? `\n${PN_FRAMEWORK_RULES[pnFramework]}\n` : ""}${feedbackBlock}${insightsBlock}LINE OF BUSINESS: ${PRODUCT_LABELS[product]}
 USE CASE TYPE: ${useCase ? USE_CASE_LABELS[useCase] : "General"}${useCase === "promotional" ? " — drop-off re-engagement, new campaign/launch, general engagement, offers and discounts" : useCase === "utility" ? " — renewals, service messages, VAS messages, reward statements" : ""}
-${dripBlock}CONTEXT / PROBLEM STATEMENT: ${context}
+${dripBlock}${brief?.userDescription ? `WHO YOU'RE WRITING TO: ${brief.userDescription}\n` : ""}${brief?.commType ? `COMM TYPE: ${brief.commType.toUpperCase()} — ${brief.commType === "informational" ? "explaining a benefit, policy detail, or process the user needs to know" : brief.commType === "feature" ? "introducing a new product, plan, or capability" : "discount, offer, or a concrete reason to act now"}\n` : ""}CONTEXT / WHY YOU'RE SAYING IT: ${context}
+${brief?.desiredAction ? `WHAT WE WANT THE USER TO DO: ${brief.desiredAction}\n` : ""}${brief?.nonNegotiables ? `NON-NEGOTIABLES (must follow exactly): ${brief.nonNegotiables}\n` : ""}${brief?.referenceText ? `\nREFERENCE MATERIAL (study tone, structure, and specifics from these; do not copy verbatim):\n---\n${brief.referenceText}\n---\n` : ""}
 
 Generate ${variantCount} distinct copy variant${variantCount > 1 ? "s" : ""} for the above.
 

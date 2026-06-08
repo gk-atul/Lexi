@@ -65,6 +65,9 @@ export default function DripCalendar({
   nonNegotiables,
   referenceText,
 }: Props) {
+  const [localDays, setLocalDays] = useState(totalDays);
+  const [editingDays, setEditingDays] = useState(false);
+
   const [plan, setPlan] = useState<DripPlan>(() => {
     const init: DripPlan = {};
     for (let d = 1; d <= totalDays; d++) {
@@ -74,6 +77,31 @@ export default function DripCalendar({
     }
     return init;
   });
+
+  const adjustDays = (delta: number) => {
+    const next = Math.max(2, Math.min(90, localDays + delta));
+    if (next === localDays) return;
+    setLocalDays(next);
+    setPlan((prev) => {
+      const updated = { ...prev };
+      if (delta > 0) {
+        // Add new empty cells for each new day
+        for (let d = localDays + 1; d <= next; d++) {
+          for (const ch of channels) {
+            updated[cellKey(d, ch)] = { enabled: false, loading: false, variants: [], error: null, expanded: false };
+          }
+        }
+      } else {
+        // Remove cells for days beyond the new count
+        for (let d = next + 1; d <= localDays; d++) {
+          for (const ch of channels) {
+            delete updated[cellKey(d, ch)];
+          }
+        }
+      }
+      return updated;
+    });
+  };
 
   const toggleCell = (day: number, ch: Channel) => {
     setPlan((prev) => {
@@ -115,7 +143,7 @@ export default function DripCalendar({
           body: JSON.stringify({
             channel: ch, product: lob, useCase,
             context: effectiveContext, variantCount,
-            dripDay: day, dripTotal: totalDays,
+            dripDay: day, dripTotal: localDays,
             userDescription: userDescription || undefined,
             commType: commType || undefined,
             desiredAction: desiredAction || undefined,
@@ -137,7 +165,7 @@ export default function DripCalendar({
         }));
       }
     },
-    [lob, useCase, context, variantCount, totalDays, onCellPreview, userDescription, commType, desiredAction, nonNegotiables, referenceText]
+    [lob, useCase, context, variantCount, localDays, onCellPreview, userDescription, commType, desiredAction, nonNegotiables, referenceText]
   );
 
   const generateAll = async () => {
@@ -155,14 +183,53 @@ export default function DripCalendar({
   const enabledCount = Object.values(plan).filter((c) => c.enabled && c.variants.length === 0).length;
   const generatedCount = Object.values(plan).filter((c) => c.variants.length > 0).length;
   const anyLoading = Object.values(plan).some((c) => c.loading);
-  const days = Array.from({ length: totalDays }, (_, i) => i + 1);
+  const days = Array.from({ length: localDays }, (_, i) => i + 1);
 
   return (
     <div>
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-[14px] font-semibold text-[#141414]">{totalDays}-day drip journey</h2>
+          <div className="flex items-center gap-2">
+            {editingDays ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => adjustDays(-1)}
+                  disabled={localDays <= 2}
+                  className="w-6 h-6 rounded-full border border-[#E0E0E1] flex items-center justify-center text-[#605F63] hover:border-[#6841E6] hover:text-[#6841E6] disabled:opacity-30 transition-colors text-[14px] leading-none"
+                >−</button>
+                <span className="text-[14px] font-semibold text-[#141414] w-14 text-center tabular-nums">
+                  {localDays} days
+                </span>
+                <button
+                  type="button"
+                  onClick={() => adjustDays(1)}
+                  disabled={localDays >= 90}
+                  className="w-6 h-6 rounded-full border border-[#E0E0E1] flex items-center justify-center text-[#605F63] hover:border-[#6841E6] hover:text-[#6841E6] disabled:opacity-30 transition-colors text-[14px] leading-none"
+                >+</button>
+                <button
+                  type="button"
+                  onClick={() => setEditingDays(false)}
+                  className="ml-1 text-[11px] font-medium text-[#6841E6] hover:text-[#582FD2] transition-colors"
+                >Done</button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <h2 className="text-[14px] font-semibold text-[#141414]">{localDays}-day drip journey</h2>
+                <button
+                  type="button"
+                  onClick={() => setEditingDays(true)}
+                  className="text-[#B7B7B8] hover:text-[#6841E6] transition-colors"
+                  title="Edit journey length"
+                >
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
           <p className="text-[12px] text-[#605F63] mt-0.5">
             Toggle channels per day, then generate
           </p>
@@ -202,7 +269,7 @@ export default function DripCalendar({
           <DayRow
             key={day}
             day={day}
-            totalDays={totalDays}
+            totalDays={localDays}
             channels={channels}
             plan={plan}
             onToggle={toggleCell}

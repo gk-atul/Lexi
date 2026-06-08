@@ -1243,11 +1243,45 @@ export default function OutputCards({ variants, channelKey, channel, product, us
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [exporting, setExporting] = useState(false);
 
+  const [addingMore, setAddingMore] = useState(false);
+  const [addCount, setAddCount] = useState(1);
+
   // Keep local copy in sync when parent variants change (e.g. channel switch)
   useEffect(() => { setLocalVariants(variants); }, [variants]);
 
   const handleVariantUpdate = (index: number, updated: Variant) => {
     setLocalVariants((prev) => prev.map((v, i) => i === index ? updated : v));
+  };
+
+  const handleAddMore = async () => {
+    if (!generateParams || addingMore) return;
+    setAddingMore(true);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: channelKey,
+          variantCount: addCount,
+          product: generateParams.product,
+          useCase: generateParams.useCase,
+          context: generateParams.context,
+          pnFramework: generateParams.pnFramework ?? undefined,
+          userDescription: generateParams.userDescription,
+          commType: generateParams.commType,
+          desiredAction: generateParams.desiredAction,
+          nonNegotiables: generateParams.nonNegotiables,
+          referenceText: generateParams.referenceText,
+          tone: generateParams.tone,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.variants?.length) {
+        setLocalVariants((prev) => [...prev, ...(data.variants as Variant[])]);
+      }
+    } finally {
+      setAddingMore(false);
+    }
   };
 
   // Load stats once on mount, and refresh whenever a child signals a change
@@ -1328,6 +1362,44 @@ export default function OutputCards({ variants, channelKey, channel, product, us
           />
         ))}
       </div>
+
+      {/* ── Add more variants ──────────────────────────────────────────────── */}
+      {generateParams && (
+        <div className="flex items-center gap-3 pt-1">
+          <div className="flex items-center gap-1.5 text-[12px] text-[#B7B7B8]">
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setAddCount(n)}
+                className={`w-7 h-7 rounded-full border text-[12px] font-medium transition-all ${
+                  addCount === n
+                    ? "border-[#6841E6] bg-[#6841E6] text-white"
+                    : "border-[#E0E0E1] text-[#605F63] hover:border-[#6841E6] hover:text-[#6841E6]"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={handleAddMore}
+            disabled={addingMore}
+            className="flex items-center gap-1.5 text-[12px] font-medium text-[#605F63] hover:text-[#6841E6] transition-colors disabled:opacity-40"
+          >
+            {addingMore ? (
+              <div className="w-3.5 h-3.5 border border-[#6841E6] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M7 4v6M4 7h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+            )}
+            {addingMore ? "Generating…" : `Generate ${addCount} more`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

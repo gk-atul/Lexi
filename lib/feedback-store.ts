@@ -133,6 +133,31 @@ export function getDb(): Database.Database {
     );
     CREATE INDEX IF NOT EXISTS idx_journey_id
       ON journey_generations (journey_id, day);
+
+    -- ── Usage analytics ───────────────────────────────────────────────────
+
+    CREATE TABLE IF NOT EXISTS usage_events (
+      id              TEXT PRIMARY KEY,
+      event_type      TEXT NOT NULL,
+      channel         TEXT NOT NULL DEFAULT '',
+      product         TEXT NOT NULL DEFAULT '',
+      use_case        TEXT NOT NULL DEFAULT '',
+      comm_type       TEXT NOT NULL DEFAULT '',
+      tone            TEXT NOT NULL DEFAULT '',
+      pn_framework    TEXT NOT NULL DEFAULT '',
+      variant_count   INTEGER NOT NULL DEFAULT 0,
+      has_user_desc   INTEGER NOT NULL DEFAULT 0,
+      has_desired_action INTEGER NOT NULL DEFAULT 0,
+      has_non_neg     INTEGER NOT NULL DEFAULT 0,
+      has_reference   INTEGER NOT NULL DEFAULT 0,
+      is_drip         INTEGER NOT NULL DEFAULT 0,
+      writer_id       TEXT NOT NULL DEFAULT 'anonymous',
+      created_at      TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_usage_events_type
+      ON usage_events (event_type, created_at);
+    CREATE INDEX IF NOT EXISTS idx_usage_events_channel
+      ON usage_events (channel, product, created_at);
   `);
 
   globalForDb._feedbackDb = db;

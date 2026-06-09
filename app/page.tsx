@@ -11,6 +11,7 @@ import { Channel, PnFramework, CHANNEL_LABELS, PRODUCT_LABELS, USE_CASE_LABELS }
 import { GenerateParams } from "@/components/OutputCards";
 import LearningPanel from "@/components/LearningPanel";
 import WordRulesManager from "@/components/WordRulesManager";
+import AnalyticsPanel from "@/components/AnalyticsPanel";
 import WriterBadge from "@/components/WriterBadge";
 
 interface ChannelResult {
@@ -192,6 +193,7 @@ export default function Home() {
               <>
                 <TovManager />
                 <WordRulesManager />
+                <AnalyticsPanel />
                 <LearningPanel />
                 <div
                   className="bg-[#FBFBFB] border border-white rounded-[20px] p-5"

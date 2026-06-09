@@ -7,6 +7,7 @@ import { getProceduralRules } from "@/lib/edit-memory";
 import { getJourneyContext, recordJourneyGeneration } from "@/lib/journey-memory";
 import { getWordRules, sanitizeCopy, buildWordRulesBlock } from "@/lib/word-rules";
 import { getTovRules, buildTovRulesBlock } from "@/lib/tov-rules";
+import { recordUsageEvent } from "@/lib/analytics";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -169,6 +170,25 @@ export async function POST(req: NextRequest) {
         console.warn("journey-memory save failed (non-fatal):", e);
       }
     }
+
+    // Record usage analytics (non-fatal)
+    try {
+      recordUsageEvent({
+        event_type:        dripDay ? "drip_cell" : "generate",
+        channel,
+        product,
+        use_case:          useCase          ?? "",
+        comm_type:         commType         ?? "",
+        tone:              tone             ?? "",
+        pn_framework:      pnFramework      ?? "",
+        variant_count:     variantCount     || 3,
+        has_user_desc:     !!userDescription,
+        has_desired_action: !!desiredAction,
+        has_non_neg:       !!nonNegotiables,
+        has_reference:     !!referenceText,
+        is_drip:           !!dripDay,
+      });
+    } catch { /* non-fatal */ }
 
     return NextResponse.json({ variants: normalised });
   } catch (err) {

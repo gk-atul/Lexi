@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { exportToDoc } from "@/lib/export-doc";
+import { trackEvent } from "@/lib/use-analytics";
 
 export interface GenerateParams {
   product: string;
@@ -883,6 +884,7 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
 
   const handleRegenerate = async () => {
     if (!generateParams || regenerating) return;
+    trackEvent({ event_type: "regenerate", channel: channelKey, product });
     setRegenerating(true);
     try {
       const res = await fetch("/api/generate", {
@@ -921,10 +923,12 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
     navigator.clipboard.writeText(edited);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+    trackEvent({ event_type: "copy", channel: channelKey, product });
   };
 
   const handleRefine = async () => {
     if (!instruction.trim() || refining) return;
+    trackEvent({ event_type: "refine", channel: channelKey, product });
     setRefining(true);
     setRefineError(null);
     try {
@@ -1279,6 +1283,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
 
   const handleAddMore = async () => {
     if (!generateParams || addingMore) return;
+    trackEvent({ event_type: "add_more", channel: channelKey, product });
     setAddingMore(true);
     try {
       const res = await fetch("/api/generate", {
@@ -1319,6 +1324,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
   useState(() => { refreshStats(); });
 
   const handleExport = async () => {
+    trackEvent({ event_type: "export", channel: channelKey, product });
     setExporting(true);
     try {
       await exportToDoc({ channel, product, userState, context, variants: localVariants });

@@ -13,6 +13,7 @@ import LearningPanel from "@/components/LearningPanel";
 import WordRulesManager from "@/components/WordRulesManager";
 import AnalyticsPanel from "@/components/AnalyticsPanel";
 import WriterBadge from "@/components/WriterBadge";
+import { useSession } from "next-auth/react";
 
 interface ChannelResult {
   variants: Variant[];
@@ -25,6 +26,9 @@ type Mode = "idle" | "drip" | "results";
 const SESSION_KEY = "acko-gen-state";
 
 export default function Home() {
+  const { data: session } = useSession();
+  const isWriter = (session?.user as { isWriter?: boolean })?.isWriter ?? false;
+
   const [mode, setMode] = useState<Mode>("idle");
 
   // Non-drip state
@@ -193,7 +197,7 @@ export default function Home() {
               <>
                 <TovManager />
                 <WordRulesManager />
-                <AnalyticsPanel />
+                {isWriter && <AnalyticsPanel />}
                 <LearningPanel />
                 <div
                   className="bg-[#FBFBFB] border border-white rounded-[20px] p-5"

@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions, isWriter } from "@/lib/auth";
 import { recordUsageEvent, getAnalytics, UsageEventInput } from "@/lib/analytics";
 
+// GET — writer-only: returns aggregated stats
 export async function GET() {
+  const session = await getServerSession(authOptions);
+  const email = session?.user?.email;
+  if (!isWriter(email)) {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
   try {
     return NextResponse.json(getAnalytics());
   } catch (err) {
@@ -10,6 +19,8 @@ export async function GET() {
   }
 }
 
+// POST — open: records client-side events (copy, regenerate, etc.)
+// Exposing what you track is fine; the stats view is protected above.
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as UsageEventInput;

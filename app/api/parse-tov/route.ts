@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import mammoth from "mammoth";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { saveTov, saveTovMeta } from "@/lib/tov-store";
+import { saveTovRules, TovRules, TOV_EXTRACTION_PROMPT } from "@/lib/tov-rules";
+import { getWordRules, saveWordRules } from "@/lib/word-rules";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,8 +28,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 1. Save raw ToV text (existing behaviour)
     saveTov(text);
     saveTovMeta(versionName);
+
+    // 2. Extract structured rules via Gemini — runs in background, non-blocking
+    //    (we return success immediately; rules are ready for the next generation)
+    extractAndSaveRules(text).catch((e) =>
+      console.warn("ToV rule extraction failed (non-fatal):", e)
+    );
 
     return NextResponse.json({
       success: true,
@@ -38,4 +50,50 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// PUT — re-run rule extraction on the currently saved ToV (no re-upload needed)
+export async function PUT() {
+  try {
+    const { getTov } = await import("@/lib/tov-store");
+    const tov = getTov();
+    await extractAndSaveRules(tov);
+    const { getTovRules } = await import("@/lib/tov-rules");
+    const rules = getTovRules();
+    return NextResponse.json({
+      ok: true,
+      forbidden_words: rules?.forbidden_words.length ?? 0,
+      core_principles: rules?.core_principles.length ?? 0,
+    });
+  } catch (err) {
+    console.error("ToV re-extraction error:", err);
+    return NextResponse.json({ error: "Extraction failed" }, { status: 500 });
+  }
+}
+
+async function extractAndSaveRules(tov: string): Promise<void> {
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+  const prompt = TOV_EXTRACTION_PROMPT + tov + "\n---";
+
+  const result = await model.generateContent(prompt);
+  const raw = result.response.text().trim()
+    .replace(/^```json\s*/i, "")
+    .replace(/```\s*$/, "")
+    .trim();
+
+  const rules = JSON.parse(raw) as TovRules;
+  saveTovRules(rules);
+
+  // Auto-merge extracted forbidden words into word-rules.json
+  // (only adds new entries — does not overwrite manual edits)
+  const wordRules = getWordRules();
+  let changed = false;
+  for (const { word, replace_with } of rules.forbidden_words) {
+    const key = word.toLowerCase().trim();
+    if (key && !wordRules.replacements[key]) {
+      wordRules.replacements[key] = replace_with.toLowerCase().trim();
+      changed = true;
+    }
+  }
+  if (changed) saveWordRules(wordRules);
 }

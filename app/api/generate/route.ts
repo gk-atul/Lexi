@@ -6,6 +6,7 @@ import { getRelevantExamples, getInsights } from "@/lib/feedback-store";
 import { getProceduralRules } from "@/lib/edit-memory";
 import { getJourneyContext, recordJourneyGeneration } from "@/lib/journey-memory";
 import { getWordRules, sanitizeCopy, buildWordRulesBlock } from "@/lib/word-rules";
+import { getTovRules, buildTovRulesBlock } from "@/lib/tov-rules";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -58,6 +59,8 @@ export async function POST(req: NextRequest) {
     }
 
     const wordRules = getWordRules();
+    const tovRules = getTovRules();
+    const tovRulesBlock = tovRules ? buildTovRulesBlock(tovRules) : undefined;
 
     const brief: BriefFields = {
       userDescription: userDescription || undefined,
@@ -82,7 +85,8 @@ export async function POST(req: NextRequest) {
       brief,
       proceduralRules.length > 0 ? proceduralRules : undefined,
       journeyContext,
-      buildWordRulesBlock(wordRules)
+      buildWordRulesBlock(wordRules),
+      tovRulesBlock
     );
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });

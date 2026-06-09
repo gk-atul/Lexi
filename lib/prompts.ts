@@ -431,7 +431,8 @@ export function buildPrompt(
   brief?: BriefFields,
   proceduralRules?: ProceduralRuleInput[],
   journeyContext?: JourneyContextInput,
-  wordRulesBlock?: string
+  wordRulesBlock?: string,
+  tovRulesBlock?: string
 ): string {
   const feedbackBlock = feedbackExamples
     ? buildFeedbackBlock(feedbackExamples.good, feedbackExamples.bad)
@@ -468,6 +469,7 @@ Below is ACKO's complete Tone of Voice guide. Follow it exactly.
 TONE OF VOICE GUIDE:
 ${tov}
 ---
+${tovRulesBlock ? "\n" + tovRulesBlock + "\n" : ""}
 
 ${CHANNEL_RULES[channel]}
 ${pnFramework && channel === "push" ? `\n${PN_FRAMEWORK_RULES[pnFramework]}\n` : ""}${feedbackBlock}${insightsBlock}${proceduralRulesBlock}LINE OF BUSINESS: ${PRODUCT_LABELS[product]}

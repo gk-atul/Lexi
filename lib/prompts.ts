@@ -82,8 +82,8 @@ EXAMPLE of correct format:
 
 Renewing keeps your No Claim Bonus intact and your premium lower. Missing the deadline means losing the discount you've earned, [Name].
 
-- Your NCB discount disappears if you let it lapse
-- A fresh policy costs more and requires a new inspection
+- Your NCB discount disappears when cover ends
+- Starting fresh costs more and needs a new inspection
 
 Don't drive unprotected — renew before the deadline.
 
@@ -190,7 +190,7 @@ const PN_FRAMEWORK_RULES: Record<PnFramework, string> = {
 Title = the problem, specific to this user. Body = why it hurts (agitate) + the fix (solution).
 - Agitation must be real, never exaggerated — false pain erodes trust
 - Solution should feel like relief, not pressure
-- Example: Title "Your NCB discount is at risk" / Body "A lapsed policy means starting over. Renew today to keep it."`,
+- Example: Title "Your NCB discount is at risk" / Body "Once cover ends, your 25% discount resets to zero. Renew today to keep it."`,
 
   bab: `REQUIRED FRAMEWORK: BAB — Before, After, Bridge
 Title = the current (less good) state the user is in. Body = the better state + how to get there in one step.
@@ -291,7 +291,7 @@ const DRIP_ANGLES = [
   {
     name: "Loss framing",
     instruction:
-      "Focus entirely on what the user LOSES by not acting — not what they gain. Make the loss concrete and personal (e.g., a specific discount, a benefit they've earned). Do not repeat the deadline framing from Day 1.",
+      "Focus entirely on what the user LOSES by not acting — not what they gain. Make the loss concrete and personal (e.g., a specific discount, a benefit they've earned). Do not repeat the deadline framing from Day 1. Never use the word 'lapse' or 'lapsed' — say 'cover ends', 'policy expires', or 'discount resets' instead.",
   },
   {
     name: "Social proof",
@@ -501,6 +501,28 @@ For each variant also provide:
 - tov_note: one short sentence on the key ToV rule applied
 - crm_scores: honest score out of 5 for each parameter (key_hook, contextualisation, personalisation, user_first, cta_clarity, positive_tone, emotional_appeal, trust_building) — do not inflate scores
 - crm_total: weighted average out of 5 using these weights (they sum to 100%): key_hook 20%, contextualisation 15%, personalisation 15%, user_first 10%, cta_clarity 10%, positive_tone 10%, emotional_appeal 10%, trust_building 10%
+
+HARD LANGUAGE RULES — these override everything else. Scan every word of every variant before returning:
+
+FORBIDDEN WORDS / PHRASES — never appear in output under any circumstance:
+- "lapse" / "lapsed" / "lapsing" → say "cover ends", "policy expires", "discount resets to zero"
+- "policyholder" / "insured" / "claimant" → say "you" / "your"
+- "guaranteed" / "guaranteed approval" / "100% covered" → never promise unless factually certain
+- "subject to terms and conditions" → explain the actual condition in plain words
+- "instant" / "instantly" / "instant policy" → say "in minutes", "same day", or the real timeframe
+- "click here" / "act now" → use specific action labels ("Renew my policy", "See my cover")
+- "the breadwinner" / guilt-based family language → reframe around preparedness
+- "Journey" (as a metaphor for insurance) → say "cover", "plan", "policy"
+
+JARGON REPLACEMENT GUIDE — if you find yourself writing any left-column word, swap it:
+- "lapse" → "cover ends" / "policy expires"
+- "sum insured" → "cover amount" / "what you're covered for"
+- "premium" → "your cost" / "what you pay" (only where context makes "premium" confusing)
+- "deductible" → "amount you pay first"
+- "grace period" → "extra time to renew"
+- "endorsement" → "change to your policy"
+- "exclusion" → "what's not covered"
+- "no-claim bonus" is fine — spell it out on first use; NCB abbreviation is acceptable after
 
 IMPORTANT: The "copy" field must always be a plain string. Never return "copy" as a nested object.
 For push notifications specifically: the copy field MUST be exactly two lines separated by a single newline character — line 1 is the headline (≤33 chars), line 2 is the body (≤75 chars). No other format is acceptable. Example: "NCB expires in 2 days ⏳\nRenew now to keep your 25% discount."

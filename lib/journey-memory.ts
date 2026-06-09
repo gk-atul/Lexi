@@ -6,7 +6,7 @@
  * constraints apply to the next day.
  */
 
-import { getDb } from "@/lib/feedback-store";
+import { getDb, ensureMigrated } from "./db";
 import crypto from "crypto";
 
 // ─── Hook & strategy extraction ───────────────────────────────────────────────
@@ -42,34 +42,38 @@ export interface JourneyGenerationInput {
   formula?: string;
 }
 
-export function recordJourneyGeneration(data: JourneyGenerationInput): void {
+export async function recordJourneyGeneration(data: JourneyGenerationInput): Promise<void> {
+  await ensureMigrated();
   const db = getDb();
   const hookType     = extractHookType(data.headline);
   const strategyUsed = data.formula ?? extractStrategy(data.headline, data.body);
   const now          = new Date().toISOString();
 
-  const existing = db.prepare(`
-    SELECT id FROM journey_generations
-    WHERE journey_id = ? AND day = ? AND channel = ?
-  `).get(data.journeyId, data.day, data.channel) as { id: string } | undefined;
+  const existingResult = await db.execute({
+    sql: `SELECT id FROM journey_generations WHERE journey_id = ? AND day = ? AND channel = ?`,
+    args: [data.journeyId, data.day, data.channel],
+  });
+  const existing = existingResult.rows[0] as unknown as { id: string } | undefined;
 
   if (existing) {
-    db.prepare(`
-      UPDATE journey_generations
-      SET headline = ?, body = ?, strategy_used = ?, hook_type = ?, created_at = ?
-      WHERE id = ?
-    `).run(data.headline, data.body, strategyUsed, hookType, now, existing.id);
+    await db.execute({
+      sql: `UPDATE journey_generations
+        SET headline = ?, body = ?, strategy_used = ?, hook_type = ?, created_at = ?
+        WHERE id = ?`,
+      args: [data.headline, data.body, strategyUsed, hookType, now, existing.id],
+    });
   } else {
-    db.prepare(`
-      INSERT INTO journey_generations
+    await db.execute({
+      sql: `INSERT INTO journey_generations
         (id, journey_id, day, channel, use_case, headline, body,
          strategy_used, hook_type, status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)
-    `).run(
-      crypto.randomUUID(),
-      data.journeyId, data.day, data.channel, data.useCase,
-      data.headline, data.body, strategyUsed, hookType, now
-    );
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft', ?)`,
+      args: [
+        crypto.randomUUID(),
+        data.journeyId, data.day, data.channel, data.useCase,
+        data.headline, data.body, strategyUsed, hookType, now,
+      ],
+    });
   }
 }
 
@@ -95,17 +99,21 @@ export interface JourneyContext {
   };
 }
 
-export function getJourneyContext(
+export async function getJourneyContext(
   journeyId: string,
   currentDay: number,
   totalDays: number
-): JourneyContext | null {
-  const rows = getDb().prepare(`
-    SELECT day, headline, strategy_used, hook_type, status
-    FROM journey_generations
-    WHERE journey_id = ? AND day < ?
-    ORDER BY day ASC
-  `).all(journeyId, currentDay) as Array<{
+): Promise<JourneyContext | null> {
+  await ensureMigrated();
+  const result = await getDb().execute({
+    sql: `SELECT day, headline, strategy_used, hook_type, status
+      FROM journey_generations
+      WHERE journey_id = ? AND day < ?
+      ORDER BY day ASC`,
+    args: [journeyId, currentDay],
+  });
+
+  const rows = result.rows as unknown as Array<{
     day: number; headline: string; strategy_used: string; hook_type: string; status: string;
   }>;
 
@@ -115,7 +123,6 @@ export function getJourneyContext(
   const hooksUsed      = [...new Set(rows.map((r) => r.hook_type))];
   const lastRow        = rows[rows.length - 1];
 
-  // Coherence rules
   const avoidHooks      = lastRow ? [lastRow.hook_type]      : [];
   const avoidStrategies = lastRow ? [lastRow.strategy_used]  : [];
 

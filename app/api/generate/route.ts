@@ -41,13 +41,20 @@ export async function POST(req: NextRequest) {
 
     const resolvedUserState = userState ?? "";
     const tov = getTov();
-    const feedbackExamples = getRelevantExamples(channel, product, resolvedUserState);
-    const insightsData = getInsights(channel, product, resolvedUserState);
+
+    // Fetch all async data in parallel
+    const [feedbackExamples, insightsData, rawRules, wordRules, tovRules] = await Promise.all([
+      getRelevantExamples(channel, product, resolvedUserState),
+      getInsights(channel, product, resolvedUserState),
+      getProceduralRules(useCase ?? "", channel, commType ?? ""),
+      getWordRules(),
+      getTovRules(),
+    ]);
+
     const dripContext =
       dripDay && dripTotal ? { day: dripDay, totalDays: dripTotal } : undefined;
 
     // ── Layer 1: procedural rules from edit memory ────────────────────────
-    const rawRules = getProceduralRules(useCase ?? "", channel, commType ?? "");
     const proceduralRules: ProceduralRuleInput[] = rawRules.map((r) => ({
       rule: r.rule, strength: r.strength,
     }));
@@ -55,12 +62,10 @@ export async function POST(req: NextRequest) {
     // ── Layer 2: journey context (drip only, day > 1) ─────────────────────
     let journeyContext: JourneyContextInput | undefined;
     if (journeyId && dripDay && dripTotal && dripDay > 1) {
-      const ctx = getJourneyContext(journeyId, dripDay, dripTotal);
+      const ctx = await getJourneyContext(journeyId, dripDay, dripTotal);
       if (ctx) journeyContext = ctx;
     }
 
-    const wordRules = getWordRules();
-    const tovRules = getTovRules();
     const tovRulesBlock = tovRules ? buildTovRulesBlock(tovRules) : undefined;
 
     const brief: BriefFields = {
@@ -143,7 +148,7 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      // Post-process: deterministic jargon replacement (safety net for anything the model missed)
+      // Post-process: deterministic jargon replacement
       copy = sanitizeCopy(copy, wordRules);
 
       return { ...v, copy };
@@ -157,7 +162,7 @@ export async function POST(req: NextRequest) {
       const headline = channel === "push" ? (copyLines[0] ?? "") : rawCopy.split(/\n\n/)[0] ?? rawCopy.slice(0, 80);
       const body     = channel === "push" ? copyLines.slice(1).join(" ") : rawCopy;
       try {
-        recordJourneyGeneration({
+        await recordJourneyGeneration({
           journeyId,
           day:      dripDay,
           channel,
@@ -173,7 +178,7 @@ export async function POST(req: NextRequest) {
 
     // Record usage analytics (non-fatal)
     try {
-      recordUsageEvent({
+      await recordUsageEvent({
         event_type:        dripDay ? "drip_cell" : "generate",
         channel,
         product,

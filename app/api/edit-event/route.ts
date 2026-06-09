@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ skipped: true, reason: "no change" });
     }
 
-    const result = recordEditEvent({
+    const result = await recordEditEvent({
       generationId,
       useCase:   useCase   ?? "",
       channel:   channel   ?? "",

@@ -12,7 +12,7 @@ export async function GET() {
   }
 
   try {
-    return NextResponse.json(getAnalytics());
+    return NextResponse.json(await getAnalytics());
   } catch (err) {
     console.error("analytics GET error:", err);
     return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });
@@ -20,14 +20,13 @@ export async function GET() {
 }
 
 // POST — open: records client-side events (copy, regenerate, etc.)
-// Exposing what you track is fine; the stats view is protected above.
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as UsageEventInput;
     if (!body.event_type) {
       return NextResponse.json({ error: "event_type required" }, { status: 400 });
     }
-    recordUsageEvent(body);
+    await recordUsageEvent(body);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("analytics POST error:", err);

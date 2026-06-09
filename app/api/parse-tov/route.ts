@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
     saveTovMeta(versionName);
 
     // 2. Extract structured rules via Gemini — runs in background, non-blocking
-    //    (we return success immediately; rules are ready for the next generation)
     extractAndSaveRules(text).catch((e) =>
       console.warn("ToV rule extraction failed (non-fatal):", e)
     );
@@ -59,7 +58,7 @@ export async function PUT() {
     const tov = getTov();
     await extractAndSaveRules(tov);
     const { getTovRules } = await import("@/lib/tov-rules");
-    const rules = getTovRules();
+    const rules = await getTovRules();
     return NextResponse.json({
       ok: true,
       forbidden_words: rules?.forbidden_words.length ?? 0,
@@ -82,11 +81,11 @@ async function extractAndSaveRules(tov: string): Promise<void> {
     .trim();
 
   const rules = JSON.parse(raw) as TovRules;
-  saveTovRules(rules);
+  await saveTovRules(rules);
 
-  // Auto-merge extracted forbidden words into word-rules.json
+  // Auto-merge extracted forbidden words into word-rules config
   // (only adds new entries — does not overwrite manual edits)
-  const wordRules = getWordRules();
+  const wordRules = await getWordRules();
   let changed = false;
   for (const { word, replace_with } of rules.forbidden_words) {
     const key = word.toLowerCase().trim();
@@ -95,5 +94,5 @@ async function extractAndSaveRules(tov: string): Promise<void> {
       changed = true;
     }
   }
-  if (changed) saveWordRules(wordRules);
+  if (changed) await saveWordRules(wordRules);
 }

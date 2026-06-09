@@ -1,10 +1,9 @@
 /**
  * Structured ToV rules — extracted from the raw ToV document by Gemini at upload time.
- * Lives at data/tov-parsed.json and is injected into every generation prompt.
+ * Stored in the config table (key = 'tov-rules') and injected into every generation prompt.
  */
 
-import fs from "fs";
-import path from "path";
+import { getDb, ensureMigrated } from "./db";
 
 export interface ForbiddenWord {
   word: string;
@@ -21,38 +20,27 @@ export interface TovRules {
   always_do: string[];
 }
 
-const STATIC_RULES_PATH = path.join(process.cwd(), "data", "tov-parsed.json");
-
-// On Vercel the project root is read-only — use /tmp for writes.
-function resolveRulesPath(): string {
-  if (!process.env.VERCEL) return STATIC_RULES_PATH;
-  const tmp = "/tmp/tov-parsed.json";
-  // Seed from bundled file if it exists and tmp hasn't been written yet
-  if (!fs.existsSync(tmp) && fs.existsSync(STATIC_RULES_PATH)) {
-    fs.copyFileSync(STATIC_RULES_PATH, tmp);
-  }
-  return tmp;
+export async function getTovRules(): Promise<TovRules | null> {
+  await ensureMigrated();
+  const result = await getDb().execute({
+    sql: "SELECT value FROM config WHERE key = ?",
+    args: ["tov-rules"],
+  });
+  if (result.rows[0]) return JSON.parse(result.rows[0].value as string) as TovRules;
+  return null;
 }
 
-const RULES_PATH = resolveRulesPath();
-
-export function getTovRules(): TovRules | null {
-  try {
-    if (!fs.existsSync(RULES_PATH)) return null;
-    return JSON.parse(fs.readFileSync(RULES_PATH, "utf8")) as TovRules;
-  } catch {
-    return null;
-  }
-}
-
-export function saveTovRules(rules: TovRules): void {
-  fs.writeFileSync(RULES_PATH, JSON.stringify(rules, null, 2), "utf8");
+export async function saveTovRules(rules: TovRules): Promise<void> {
+  await ensureMigrated();
+  await getDb().execute({
+    sql: "INSERT OR REPLACE INTO config (key, value, updated_at) VALUES (?, ?, ?)",
+    args: ["tov-rules", JSON.stringify(rules), new Date().toISOString()],
+  });
 }
 
 /**
  * Builds a compact, structured block injected into every generation prompt
- * immediately after the raw ToV text. This dual-injection ensures the model
- * has both the nuance of the full doc and a scannable mechanical ruleset.
+ * immediately after the raw ToV text.
  */
 export function buildTovRulesBlock(rules: TovRules): string {
   const lines: string[] = [

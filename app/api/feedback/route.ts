@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "verdict, copy, and channel are required" }, { status: 400 });
     }
 
-    const entry = addFeedback({
+    const entry = await addFeedback({
       verdict,
       copy,
       channel,
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Fire-and-forget: re-analyse every 5th feedback for this combo
-    const count = getFeedbackCountForCombo(channel, product ?? "", userState ?? "");
+    const count = await getFeedbackCountForCombo(channel, product ?? "", userState ?? "");
     if (count > 0 && count % 5 === 0) {
       const origin = req.nextUrl.origin;
       fetch(`${origin}/api/learn`, {
@@ -43,7 +43,7 @@ export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
-    removeFeedback(id);
+    await removeFeedback(id);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Feedback DELETE error:", err);
@@ -53,8 +53,7 @@ export async function DELETE(req: NextRequest) {
 
 export async function GET() {
   try {
-    const stats = getFeedbackStats();
-    const entries = getAllFeedback();
+    const [stats, entries] = await Promise.all([getFeedbackStats(), getAllFeedback()]);
     return NextResponse.json({ stats, entries });
   } catch (err) {
     console.error("Feedback GET error:", err);

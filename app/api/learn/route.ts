@@ -13,7 +13,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // ── GET — return all learned insights + feedback stats ─────────────────────
 export async function GET() {
   try {
-    const insights = getAllInsights();
+    const insights = await getAllInsights();
     return NextResponse.json({ insights });
   } catch (err) {
     console.error("[learn] GET error:", err);
@@ -34,7 +34,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Filter all feedback to this combo
-    const all = getAllFeedback().filter(
+    const allEntries = await getAllFeedback();
+    const all = allEntries.filter(
       (e) => e.channel === channel && e.product === product && e.userState === userState
     );
     const good = all.filter((e) => e.verdict === "good");
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     const formatSamples = (samples: typeof all) =>
       samples
-        .slice(0, 12) // cap to avoid huge prompts
+        .slice(0, 12)
         .map((e, i) => {
           const lines = [`${i + 1}. "${e.copy}"`];
           if (e.context) lines.push(`   Context: ${e.context}`);
@@ -117,8 +118,8 @@ Respond ONLY with valid JSON — no markdown, no explanation:
       });
     }
 
-    const feedbackCount = getFeedbackCountForCombo(channel, product, userState);
-    upsertInsights(channel, product, userState, insights, summary, feedbackCount);
+    const feedbackCount = await getFeedbackCountForCombo(channel, product, userState);
+    await upsertInsights(channel, product, userState, insights, summary, feedbackCount);
 
     return NextResponse.json({ insights, summary });
   } catch (err) {

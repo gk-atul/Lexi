@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getWordRules, saveWordRules, WordRules } from "@/lib/word-rules";
 
 export async function GET() {
-  return NextResponse.json(getWordRules());
+  return NextResponse.json(await getWordRules());
 }
 
 export async function POST(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     if (!body.replacements || !body.forbidden) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
-    saveWordRules(body);
+    await saveWordRules(body);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("word-rules save error:", err);

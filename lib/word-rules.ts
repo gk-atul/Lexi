@@ -1,14 +1,13 @@
 /**
  * Word rules: forbidden jargon replacements + banned phrases.
  *
- * Source of truth: data/word-rules.json
+ * Source of truth: config table (key = 'word-rules'), falling back to data/word-rules.json.
  * Applied in two places:
  *   1. Prompt injection — tells the model what to avoid (reduces violations)
  *   2. Post-processing in generate/route.ts — deterministic fallback (catches everything)
  */
 
-import fs from "fs";
-import path from "path";
+import { getDb, ensureMigrated } from "./db";
 
 export interface WordRules {
   /** Jargon → plain-English replacements. Applied programmatically after generation. */
@@ -17,31 +16,27 @@ export interface WordRules {
   forbidden: string[];
 }
 
-const STATIC_RULES_PATH = path.join(process.cwd(), "data", "word-rules.json");
-
-// On Vercel the project root is read-only — seed /tmp from bundled file on first use.
-function resolveRulesPath(): string {
-  if (!process.env.VERCEL) return STATIC_RULES_PATH;
-  const tmp = "/tmp/word-rules.json";
-  if (!fs.existsSync(tmp) && fs.existsSync(STATIC_RULES_PATH)) {
-    fs.copyFileSync(STATIC_RULES_PATH, tmp);
-  }
-  return tmp;
+export async function getWordRules(): Promise<WordRules> {
+  await ensureMigrated();
+  const result = await getDb().execute({
+    sql: "SELECT value FROM config WHERE key = ?",
+    args: ["word-rules"],
+  });
+  if (result.rows[0]) return JSON.parse(result.rows[0].value as string) as WordRules;
+  // fall back to bundled JSON
+  const fs = await import("fs");
+  const path = await import("path");
+  const p = path.join(process.cwd(), "data", "word-rules.json");
+  if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8")) as WordRules;
+  return { replacements: {}, forbidden: [] };
 }
 
-const RULES_PATH = resolveRulesPath();
-
-export function getWordRules(): WordRules {
-  try {
-    const raw = fs.readFileSync(RULES_PATH, "utf8");
-    return JSON.parse(raw) as WordRules;
-  } catch {
-    return { replacements: {}, forbidden: [] };
-  }
-}
-
-export function saveWordRules(rules: WordRules): void {
-  fs.writeFileSync(RULES_PATH, JSON.stringify(rules, null, 2), "utf8");
+export async function saveWordRules(rules: WordRules): Promise<void> {
+  await ensureMigrated();
+  await getDb().execute({
+    sql: "INSERT OR REPLACE INTO config (key, value, updated_at) VALUES (?, ?, ?)",
+    args: ["word-rules", JSON.stringify(rules), new Date().toISOString()],
+  });
 }
 
 /**
@@ -58,7 +53,6 @@ export function sanitizeCopy(text: string, rules: WordRules): string {
 
   let result = text;
   for (const [jargon, plain] of pairs) {
-    // \b works for single words; for multi-word phrases we need lookaround
     const escaped = jargon.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const boundary = jargon.includes(" ")
       ? `(?<![\\w])${escaped}(?![\\w])`
@@ -66,7 +60,6 @@ export function sanitizeCopy(text: string, rules: WordRules): string {
     const regex = new RegExp(boundary, "gi");
 
     result = result.replace(regex, (match) => {
-      // Preserve sentence-start capitalisation
       if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
         return plain.charAt(0).toUpperCase() + plain.slice(1);
       }
@@ -90,7 +83,6 @@ export function buildWordRulesBlock(rules: WordRules): string {
 
   if (pairs.length > 0) {
     lines.push("Replace these words/phrases without exception:");
-    // Show longest first so the model sees multi-word phrases prominently
     const sorted = [...pairs].sort((a, b) => b[0].length - a[0].length);
     for (const [from, to] of sorted) {
       lines.push(`  "${from}" → "${to}"`);

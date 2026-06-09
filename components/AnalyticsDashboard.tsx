@@ -161,12 +161,11 @@ export default function AnalyticsDashboard() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* ── Interaction rates ────────────────────────────────────────── */}
-              <div
-                className="bg-white rounded-2xl p-5 border border-[#F0F0F1]"
-                style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.04)" }}
-              >
+            {/* ── Interaction rates ────────────────────────────────────────── */}
+            <div
+              className="bg-white rounded-2xl p-5 border border-[#F0F0F1]"
+              style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.04)" }}
+            >
                 <p className="text-[12px] font-semibold text-[#605F63] uppercase tracking-[0.5px] mb-4">Interactions · last 30 days</p>
                 <div className="space-y-3">
                   {[
@@ -188,31 +187,6 @@ export default function AnalyticsDashboard() {
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* ── Brief completeness ───────────────────────────────────────── */}
-              {data.brief.total > 0 && (
-                <div
-                  className="bg-white rounded-2xl p-5 border border-[#F0F0F1]"
-                  style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.04)" }}
-                >
-                  <p className="text-[12px] font-semibold text-[#605F63] uppercase tracking-[0.5px] mb-4">Brief fill rate · last 30 days</p>
-                  <div className="space-y-3">
-                    {[
-                      { label: "User description", pct: data.brief.userDesc },
-                      { label: "Desired action", pct: data.brief.desiredAction },
-                      { label: "Non-negotiables", pct: data.brief.nonNeg },
-                      { label: "Reference", pct: data.brief.reference },
-                    ].map(({ label, pct }) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <span className="text-[12px] text-[#605F63] w-28 flex-shrink-0">{label}</span>
-                        <Bar pct={pct} color="bg-[#F59E0B]" />
-                        <span className="text-[12px] font-semibold text-[#141414] w-8 text-right flex-shrink-0">{pct}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

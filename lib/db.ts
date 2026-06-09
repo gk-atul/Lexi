@@ -5,7 +5,10 @@ const g = globalThis as unknown as { _db?: Client; _migrated?: boolean };
 export function getDb(): Client {
   if (g._db) return g._db;
   g._db = createClient({
-    url: process.env.TURSO_DATABASE_URL ?? "file:./data/feedback.db",
+    // On Vercel the project root is read-only; /tmp is always writable.
+    // In local dev, fall back to the data/ directory (writable).
+    url: process.env.TURSO_DATABASE_URL ??
+      (process.env.VERCEL ? "file:/tmp/feedback.db" : "file:./data/feedback.db"),
     authToken: process.env.TURSO_AUTH_TOKEN,
   });
   return g._db;

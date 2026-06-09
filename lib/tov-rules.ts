@@ -21,7 +21,20 @@ export interface TovRules {
   always_do: string[];
 }
 
-const RULES_PATH = path.join(process.cwd(), "data", "tov-parsed.json");
+const STATIC_RULES_PATH = path.join(process.cwd(), "data", "tov-parsed.json");
+
+// On Vercel the project root is read-only — use /tmp for writes.
+function resolveRulesPath(): string {
+  if (!process.env.VERCEL) return STATIC_RULES_PATH;
+  const tmp = "/tmp/tov-parsed.json";
+  // Seed from bundled file if it exists and tmp hasn't been written yet
+  if (!fs.existsSync(tmp) && fs.existsSync(STATIC_RULES_PATH)) {
+    fs.copyFileSync(STATIC_RULES_PATH, tmp);
+  }
+  return tmp;
+}
+
+const RULES_PATH = resolveRulesPath();
 
 export function getTovRules(): TovRules | null {
   try {

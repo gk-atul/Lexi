@@ -17,7 +17,19 @@ export interface WordRules {
   forbidden: string[];
 }
 
-const RULES_PATH = path.join(process.cwd(), "data", "word-rules.json");
+const STATIC_RULES_PATH = path.join(process.cwd(), "data", "word-rules.json");
+
+// On Vercel the project root is read-only — seed /tmp from bundled file on first use.
+function resolveRulesPath(): string {
+  if (!process.env.VERCEL) return STATIC_RULES_PATH;
+  const tmp = "/tmp/word-rules.json";
+  if (!fs.existsSync(tmp) && fs.existsSync(STATIC_RULES_PATH)) {
+    fs.copyFileSync(STATIC_RULES_PATH, tmp);
+  }
+  return tmp;
+}
+
+const RULES_PATH = resolveRulesPath();
 
 export function getWordRules(): WordRules {
   try {

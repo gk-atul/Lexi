@@ -430,7 +430,8 @@ export function buildPrompt(
   learnedInsights?: string[],
   brief?: BriefFields,
   proceduralRules?: ProceduralRuleInput[],
-  journeyContext?: JourneyContextInput
+  journeyContext?: JourneyContextInput,
+  wordRulesBlock?: string
 ): string {
   const feedbackBlock = feedbackExamples
     ? buildFeedbackBlock(feedbackExamples.good, feedbackExamples.bad)
@@ -502,29 +503,7 @@ For each variant also provide:
 - crm_scores: honest score out of 5 for each parameter (key_hook, contextualisation, personalisation, user_first, cta_clarity, positive_tone, emotional_appeal, trust_building) — do not inflate scores
 - crm_total: weighted average out of 5 using these weights (they sum to 100%): key_hook 20%, contextualisation 15%, personalisation 15%, user_first 10%, cta_clarity 10%, positive_tone 10%, emotional_appeal 10%, trust_building 10%
 
-HARD LANGUAGE RULES — these override everything else. Scan every word of every variant before returning:
-
-FORBIDDEN WORDS / PHRASES — never appear in output under any circumstance:
-- "lapse" / "lapsed" / "lapsing" → say "cover ends", "policy expires", "discount resets to zero"
-- "policyholder" / "insured" / "claimant" → say "you" / "your"
-- "guaranteed" / "guaranteed approval" / "100% covered" → never promise unless factually certain
-- "subject to terms and conditions" → explain the actual condition in plain words
-- "instant" / "instantly" / "instant policy" → say "in minutes", "same day", or the real timeframe
-- "click here" / "act now" → use specific action labels ("Renew my policy", "See my cover")
-- "the breadwinner" / guilt-based family language → reframe around preparedness
-- "Journey" (as a metaphor for insurance) → say "cover", "plan", "policy"
-
-JARGON REPLACEMENT GUIDE — if you find yourself writing any left-column word, swap it:
-- "lapse" → "cover ends" / "policy expires"
-- "sum insured" → "cover amount" / "what you're covered for"
-- "premium" → "your cost" / "what you pay" (only where context makes "premium" confusing)
-- "deductible" → "amount you pay first"
-- "grace period" → "extra time to renew"
-- "endorsement" → "change to your policy"
-- "exclusion" → "what's not covered"
-- "no-claim bonus" is fine — spell it out on first use; NCB abbreviation is acceptable after
-
-IMPORTANT: The "copy" field must always be a plain string. Never return "copy" as a nested object.
+${wordRulesBlock ? wordRulesBlock + "\n\n" : ""}IMPORTANT: The "copy" field must always be a plain string. Never return "copy" as a nested object.
 For push notifications specifically: the copy field MUST be exactly two lines separated by a single newline character — line 1 is the headline (≤33 chars), line 2 is the body (≤75 chars). No other format is acceptable. Example: "NCB expires in 2 days ⏳\nRenew now to keep your 25% discount."
 
 Respond ONLY with a valid JSON array, no markdown, no explanation. Format:

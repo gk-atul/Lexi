@@ -1,0 +1,36 @@
+{
+  "replacements": {
+    "lapse": "cover ends",
+    "lapsed": "cover ended",
+    "lapsing": "cover ending",
+    "policyholder": "you",
+    "policyholders": "customers",
+    "insured": "you",
+    "the insured": "you",
+    "claimant": "you",
+    "sum insured": "cover amount",
+    "sum assured": "cover amount",
+    "deductible": "amount you pay first",
+    "co-payment": "your share of the cost",
+    "copayment": "your share of the cost",
+    "endorsement": "change to your policy",
+    "exclusion": "what's not covered",
+    "exclusions": "what's not covered",
+    "grace period": "extra time to renew",
+    "pre-existing": "existing condition",
+    "pre-existing condition": "existing condition",
+    "waiting period": "cover starts after",
+    "subrogation": "our right to recover costs"
+  },
+  "forbidden": [
+    "guaranteed approval",
+    "instant policy",
+    "100% covered",
+    "click here",
+    "act now",
+    "subject to terms and conditions",
+    "T&C apply",
+    "T&Cs apply",
+    "the breadwinner"
+  ]
+}

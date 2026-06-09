@@ -5,6 +5,7 @@ import { buildPrompt, Channel, Product, UseCase, PnFramework, BriefFields, Proce
 import { getRelevantExamples, getInsights } from "@/lib/feedback-store";
 import { getProceduralRules } from "@/lib/edit-memory";
 import { getJourneyContext, recordJourneyGeneration } from "@/lib/journey-memory";
+import { getWordRules, sanitizeCopy, buildWordRulesBlock } from "@/lib/word-rules";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -56,6 +57,8 @@ export async function POST(req: NextRequest) {
       if (ctx) journeyContext = ctx;
     }
 
+    const wordRules = getWordRules();
+
     const brief: BriefFields = {
       userDescription: userDescription || undefined,
       commType: commType || undefined,
@@ -78,7 +81,8 @@ export async function POST(req: NextRequest) {
       insightsData.insights.length > 0 ? insightsData.insights : undefined,
       brief,
       proceduralRules.length > 0 ? proceduralRules : undefined,
-      journeyContext
+      journeyContext,
+      buildWordRulesBlock(wordRules)
     );
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
@@ -133,6 +137,9 @@ export async function POST(req: NextRequest) {
           copy = sections.join("\n\n");
         }
       }
+
+      // Post-process: deterministic jargon replacement (safety net for anything the model missed)
+      copy = sanitizeCopy(copy, wordRules);
 
       return { ...v, copy };
     });

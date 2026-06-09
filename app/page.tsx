@@ -10,6 +10,7 @@ import { ScaledMockup } from "@/components/PhoneMockup";
 import { Channel, PnFramework, CHANNEL_LABELS, PRODUCT_LABELS, USE_CASE_LABELS } from "@/lib/prompts";
 import { GenerateParams } from "@/components/OutputCards";
 import LearningPanel from "@/components/LearningPanel";
+import WordRulesManager from "@/components/WordRulesManager";
 import WriterBadge from "@/components/WriterBadge";
 
 interface ChannelResult {
@@ -190,6 +191,7 @@ export default function Home() {
               /* ── Idle: full form ─────────────────────────────────────────── */
               <>
                 <TovManager />
+                <WordRulesManager />
                 <LearningPanel />
                 <div
                   className="bg-[#FBFBFB] border border-white rounded-[20px] p-5"

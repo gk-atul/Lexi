@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions, isWriter } from "@/lib/auth";
+import { verifyAdminToken, ADMIN_COOKIE } from "@/lib/admin-auth";
 import { recordUsageEvent, getAnalytics, UsageEventInput } from "@/lib/analytics";
 
-// GET — writer-only: returns aggregated stats
-export async function GET() {
+// GET — writer or admin cookie: returns aggregated stats
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email;
-  if (!isWriter(email)) {
+  const adminToken = req.cookies.get(ADMIN_COOKIE)?.value;
+  if (!isWriter(email) && !verifyAdminToken(adminToken)) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 

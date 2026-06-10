@@ -201,27 +201,6 @@ export default function AnalyticsPanel() {
                 </div>
               )}
 
-              {/* ── Brief field fill rates ─────────────────────────────────── */}
-              {data.brief.total > 0 && (
-                <div>
-                  <p className="text-[11px] font-semibold text-[#605F63] uppercase tracking-[0.4px] mb-2">Brief completeness (30 days)</p>
-                  <div className="space-y-2">
-                    {[
-                      { label: "User description", pct: data.brief.userDesc },
-                      { label: "Desired action", pct: data.brief.desiredAction },
-                      { label: "Non-negotiables", pct: data.brief.nonNeg },
-                      { label: "Reference material", pct: data.brief.reference },
-                    ].map(({ label, pct }) => (
-                      <div key={label} className="flex items-center gap-3">
-                        <span className="text-[12px] text-[#605F63] w-28 flex-shrink-0">{label}</span>
-                        <Bar pct={pct} color="bg-[#F59E0B]" />
-                        <span className="text-[12px] font-medium text-[#141414] w-8 text-right flex-shrink-0">{pct}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* ── Tone + comm type ───────────────────────────────────────── */}
               <div className="grid grid-cols-2 gap-4">
                 {data.tone.length > 0 && (

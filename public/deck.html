@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ACKO Copy Generator — Team Deck</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #6841E6;
+    --purple-light: #EAEAFD;
+    --purple-mid: #C5B8FA;
+    --text-dark: #141414;
+    --text-mid: #605F63;
+    --text-light: #B7B7B8;
+    --border: #E0E0E1;
+    --bg: #F7F7F8;
+    --white: #ffffff;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    overflow: hidden;
+  }
+
+  /* ── Shell ───────────────────────────────────── */
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* ── Progress bar ────────────────────────────── */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--purple);
+    transition: width 0.4s ease;
+  }
+
+  /* ── Slides container ────────────────────────── */
+  .slides-wrap {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+
+  .slide-inner {
+    width: 100%;
+    max-width: 820px;
+  }
+
+  /* ── Slide types ─────────────────────────────── */
+
+  /* Cover */
+  .slide-cover {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 64px 72px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+  }
+  .cover-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--purple);
+    background: var(--purple-light);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+  .cover-title {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+  }
+  .cover-title span { color: var(--purple); }
+  .cover-sub {
+    font-size: 17px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    max-width: 520px;
+  }
+  .cover-meta {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-light);
+  }
+
+  /* Content slides */
+  .slide-content {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 52px 64px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+  }
+  .slide-num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .slide-title {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text-dark);
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+  .slide-title span { color: var(--purple); }
+
+  /* Pills / tags */
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--purple-light);
+    color: var(--purple);
+  }
+
+  /* Bullet list */
+  .bullet-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .bullet-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .bullet-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--purple);
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+  .bullet-text {
+    font-size: 16px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .bullet-text strong { color: var(--text-dark); font-weight: 600; }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    gap: 12px;
+  }
+  .cards-2 { grid-template-columns: 1fr 1fr; }
+  .cards-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .card-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  /* Feature chips */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .feature-chip {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .feature-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    line-height: 1;
+    margin-top: 1px;
+  }
+  .feature-body {}
+  .feature-title { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .feature-desc { font-size: 12px; color: var(--text-mid); margin-top: 2px; line-height: 1.4; }
+
+  /* Loop diagram */
+  .loop {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .loop-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .loop-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--purple-light);
+    border: 2px solid var(--purple-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--purple);
+    flex-shrink: 0;
+  }
+  .loop-text { font-size: 15px; color: var(--text-mid); }
+  .loop-text strong { color: var(--text-dark); font-weight: 600; }
+  .loop-arrow {
+    width: 2px;
+    height: 18px;
+    background: var(--purple-mid);
+    margin-left: 17px;
+  }
+
+  /* Status checklist */
+  .checklist {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+  .check-item.done { border-color: #d1fae5; background: #f0fdf4; }
+  .check-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #d1fae5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* Two-col layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .col-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 16px;
+  }
+
+  /* Stat row */
+  .stat-row { display: flex; gap: 16px; margin-bottom: 28px; }
+  .stat-box {
+    flex: 1;
+    background: var(--purple-light);
+    border-radius: 14px;
+    padding: 20px 22px;
+    text-align: center;
+  }
+  .stat-num { font-size: 32px; font-weight: 700; color: var(--purple); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--text-mid); margin-top: 4px; }
+
+  /* Quote / callout */
+  .callout {
+    background: var(--purple-light);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 22px;
+    margin-top: 24px;
+  }
+  .callout p { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+  .callout strong { color: var(--text-dark); }
+
+  /* ── Nav bar ─────────────────────────────────── */
+  .nav {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px 20px;
+  }
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .nav-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .nav-dot.active {
+    background: var(--purple);
+    transform: scale(1.4);
+  }
+  .nav-btns { display: flex; gap: 8px; }
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-mid);
+    font-size: 14px;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+  .nav-counter { font-size: 12px; color: var(--text-light); align-self: center; }
+
+  /* keyboard hint */
+  .kbd-hint {
+    font-size: 11px;
+    color: var(--text-light);
+    align-self: center;
+  }
+  .kbd {
+    display: inline-block;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-family: monospace;
+    color: var(--text-mid);
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Progress -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress"></div>
+  </div>
+
+  <!-- Slides -->
+  <div class="slides-wrap" id="slides-wrap">
+
+    <!-- 1. Cover -->
+    <div class="slide active" data-index="0">
+      <div class="slide-inner">
+        <div class="slide-cover">
+          <div class="cover-label">Internal Tool · ACKO</div>
+          <div class="cover-title">ACKO <span>Copy</span><br>Generator</div>
+          <div class="cover-sub">A tool built to help the content team write faster, stay on-brand, and get better over time — without adding more process.</div>
+          <div class="cover-meta">June 2026 · Built in-house</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Problem -->
+    <div class="slide" data-index="1">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">01</div>
+          <div class="slide-title">Writing copy by hand is <span>slow and inconsistent</span></div>
+          <div class="bullet-list">
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">Push, WhatsApp, Email, and In-App each have different rules — and it's easy to mix them up</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">Writers spend 30–60 minutes per brief just on first drafts, before any reviews happen</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">Tone varies writer to writer — the brand voice drifts without a shared reference</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">There's no easy way to see what copy has been written, spot patterns, or track what's working</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. What it is -->
+    <div class="slide" data-index="2">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">02</div>
+          <div class="slide-title">What it is</div>
+          <div class="bullet-list" style="margin-bottom: 28px;">
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">A web-based tool, accessible to approved ACKO writers via Google sign-in</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">You pick a channel, product, user state, and drop in a brief — and get 3 ready-to-use copy variants</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">Every output follows ACKO's tone of voice and word rules — automatically, every time</div>
+            </div>
+          </div>
+          <div class="cards cards-3">
+            <div class="card">
+              <div class="card-num">Channels</div>
+              <div class="card-title">Push · WhatsApp<br>Email · In-App</div>
+            </div>
+            <div class="card">
+              <div class="card-num">Products</div>
+              <div class="card-title">Auto · Health<br>Life · Travel</div>
+            </div>
+            <div class="card">
+              <div class="card-num">Output</div>
+              <div class="card-title">3 variants<br>per brief</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Intelligence stack -->
+    <div class="slide" data-index="3">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">03</div>
+          <div class="slide-title">It doesn't just send a prompt to AI.<br><span>It layers five types of intelligence.</span></div>
+          <div class="cards" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="card">
+              <div class="card-num">Layer 1</div>
+              <div class="card-title">Tone of Voice Rules</div>
+              <div class="card-desc">ACKO's brand dos and don'ts, injected into every single generation</div>
+            </div>
+            <div class="card">
+              <div class="card-num">Layer 2</div>
+              <div class="card-title">Word Rules</div>
+              <div class="card-desc">Banned words auto-replaced with preferred ACKO alternatives</div>
+            </div>
+            <div class="card">
+              <div class="card-num">Layer 3</div>
+              <div class="card-title">Feedback Memory</div>
+              <div class="card-desc">Real copy rated by writers — used as examples for future outputs</div>
+            </div>
+            <div class="card">
+              <div class="card-num">Layer 4 + 5</div>
+              <div class="card-title">Learned Patterns</div>
+              <div class="card-desc">Patterns from high-rated copy + what writers change after the first draft</div>
+            </div>
+          </div>
+          <div class="callout">
+            <p>The more writers use and rate the tool, <strong>the better it gets — for everyone.</strong> Signals from one writer improve output for the whole team.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Quality -->
+    <div class="slide" data-index="4">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">04</div>
+          <div class="slide-title">Two layers of quality control</div>
+          <div class="two-col" style="margin-bottom: 0;">
+            <div>
+              <div class="col-label">Prompt Layer</div>
+              <div class="bullet-list">
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">Tone of voice rules and word rules are written into every prompt before generation starts</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">The AI is instructed to follow them — and in most cases, it does</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="col-label">Sanitisation Layer</div>
+              <div class="bullet-list">
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">After generation, every output is scanned and banned terms are replaced automatically</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">This runs 100% of the time — regardless of what the AI does</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="callout" style="margin-top: 28px;">
+            <p><strong>Certain words will never appear in generated copy.</strong> The second layer is deterministic — it's not a guideline, it's a hard filter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Features -->
+    <div class="slide" data-index="5">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">05</div>
+          <div class="slide-title">What writers can do with it</div>
+          <div class="feature-grid">
+            <div class="feature-chip">
+              <div class="feature-icon">✦</div>
+              <div class="feature-body">
+                <div class="feature-title">Generate 3 variants at once</div>
+                <div class="feature-desc">One brief, three different angles — pick the one that fits</div>
+              </div>
+            </div>
+            <div class="feature-chip">
+              <div class="feature-icon">＋</div>
+              <div class="feature-body">
+                <div class="feature-title">Ask for more</div>
+                <div class="feature-desc">Add 1, 2, or 3 more variants in one click if you need more options</div>
+              </div>
+            </div>
+            <div class="feature-chip">
+              <div class="feature-icon">↗</div>
+              <div class="feature-body">
+                <div class="feature-title">Export to Word</div>
+                <div class="feature-desc">Download the full session as a clean .docx, ready to share</div>
+              </div>
+            </div>
+            <div class="feature-chip">
+              <div class="feature-icon">◷</div>
+              <div class="feature-body">
+                <div class="feature-title">Copy history</div>
+                <div class="feature-desc">Every copy you've generated, searchable by channel and product</div>
+              </div>
+            </div>
+            <div class="feature-chip">
+              <div class="feature-icon">👍</div>
+              <div class="feature-body">
+                <div class="feature-title">Rate outputs</div>
+                <div class="feature-desc">Thumbs up or down — each rating makes future outputs more relevant</div>
+              </div>
+            </div>
+            <div class="feature-chip">
+              <div class="feature-icon">⎘</div>
+              <div class="feature-body">
+                <div class="feature-title">One-click copy</div>
+                <div class="feature-desc">Copy any variant to clipboard instantly, no selecting and dragging</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Learning loop -->
+    <div class="slide" data-index="6">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">06</div>
+          <div class="slide-title">The more you use it,<br><span>the smarter it gets</span></div>
+          <div class="two-col">
+            <div class="loop">
+              <div class="loop-step">
+                <div class="loop-circle">1</div>
+                <div class="loop-text">Writer <strong>generates copy</strong></div>
+              </div>
+              <div class="loop-arrow"></div>
+              <div class="loop-step">
+                <div class="loop-circle">2</div>
+                <div class="loop-text">Writer <strong>rates the output</strong> 👍 or 👎</div>
+              </div>
+              <div class="loop-arrow"></div>
+              <div class="loop-step">
+                <div class="loop-circle">3</div>
+                <div class="loop-text">Ratings are <strong>stored and analysed</strong></div>
+              </div>
+              <div class="loop-arrow"></div>
+              <div class="loop-step">
+                <div class="loop-circle">4</div>
+                <div class="loop-text">Patterns are <strong>extracted automatically</strong></div>
+              </div>
+              <div class="loop-arrow"></div>
+              <div class="loop-step">
+                <div class="loop-circle">5</div>
+                <div class="loop-text">Patterns feed into <strong>future prompts</strong></div>
+              </div>
+            </div>
+            <div>
+              <div class="col-label">What this means in practice</div>
+              <div class="bullet-list">
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">The first week of outputs will be good. The third month will be noticeably better.</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">Learning is global — one writer's feedback helps everyone on the team</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text">No manual curation needed — the system learns on its own as you work</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Analytics -->
+    <div class="slide" data-index="7">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">07</div>
+          <div class="slide-title">A dashboard for visibility</div>
+          <div class="stat-row">
+            <div class="stat-box">
+              <div class="stat-num">4</div>
+              <div class="stat-label">Channels tracked</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">4</div>
+              <div class="stat-label">Lines of business</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num">14d</div>
+              <div class="stat-label">Generation trend</div>
+            </div>
+          </div>
+          <div class="bullet-list">
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text"><strong>How much is the tool being used?</strong> Total copies generated, daily trend over the last two weeks</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text"><strong>What's it being used for?</strong> Breakdown by channel and product line</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text"><strong>Is the team engaging with it?</strong> Feedback rates — how often writers rate the outputs they get</div>
+            </div>
+            <div class="bullet-item">
+              <div class="bullet-dot"></div>
+              <div class="bullet-text">Accessible via a separate admin login — no Google OAuth needed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. What's live -->
+    <div class="slide" data-index="8">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">08</div>
+          <div class="slide-title">What's live today</div>
+          <div class="checklist">
+            <div class="check-item done"><div class="check-dot">✓</div>Copy generation across 4 channels × 4 products</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Tone of voice rules on every output</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Banned word filter (hard enforcement)</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Feedback layer — 👍 / 👎 rating</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Copy history per writer with filters</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Export to Word</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Analytics dashboard</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Google sign-in (ACKO emails only)</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Learning from edits and feedback</div>
+            <div class="check-item done"><div class="check-dot">✓</div>Deployed on Vercel · Database on Turso</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. What's next -->
+    <div class="slide" data-index="9">
+      <div class="slide-inner">
+        <div class="slide-content">
+          <div class="slide-num">09</div>
+          <div class="slide-title">What's next</div>
+          <div class="two-col">
+            <div>
+              <div class="col-label">Soon</div>
+              <div class="bullet-list">
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Rate more copies</strong> — the feedback layer needs data to fully activate. Even 3–4 ratings per channel makes a difference.</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Subject line + preview text</strong> for Email as separate fields</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Intentional variants</strong> — safe vs punchy, short vs long, generated in the same run</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="col-label">Later</div>
+              <div class="bullet-list">
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Performance loop</strong> — tie copy to actual send data to learn what works in the real world</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Brief templates</strong> — pre-fill common use cases so writers spend less time on setup</div>
+                </div>
+                <div class="bullet-item">
+                  <div class="bullet-dot"></div>
+                  <div class="bullet-text"><strong>Writer attribution</strong> — track who rated what, so we can audit and resolve disagreements</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="callout">
+            <p>The single biggest unlock right now: <strong>use the 👍/👎 buttons.</strong> The learning layer is live — it just needs signal to work with.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slides-wrap -->
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="kbd-hint"><span class="kbd">←</span> <span class="kbd">→</span> to navigate</div>
+    <div class="nav-dots" id="dots"></div>
+    <div class="nav-btns">
+      <button class="nav-btn" id="prev" title="Previous">←</button>
+      <span class="nav-counter" id="counter">1 / 10</span>
+      <button class="nav-btn" id="next" title="Next">→</button>
+    </div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const counterEl = document.getElementById('counter');
+  const progressEl = document.getElementById('progress');
+  const total = slides.length;
+  let current = 0;
+  let animating = false;
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  }
+
+  function updateUI() {
+    document.querySelectorAll('.nav-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    counterEl.textContent = `${current + 1} / ${total}`;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    progressEl.style.width = `${((current + 1) / total) * 100}%`;
+  }
+
+  function goTo(index) {
+    if (index === current || animating) return;
+    animating = true;
+    const prev = slides[current];
+    const next = slides[index];
+
+    prev.classList.add('exit');
+    setTimeout(() => { prev.classList.remove('active', 'exit'); }, 350);
+
+    next.style.transform = index > current ? 'translateX(40px)' : 'translateX(-40px)';
+    next.style.opacity = '0';
+    next.classList.add('active');
+    // Force reflow
+    next.getBoundingClientRect();
+    next.style.transform = '';
+    next.style.opacity = '';
+
+    current = index;
+    updateUI();
+    setTimeout(() => { animating = false; }, 400);
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(current - 1);
+  });
+
+  updateUI();
+</script>
+</body>
+</html>

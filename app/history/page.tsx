@@ -217,7 +217,21 @@ export default function HistoryPage() {
                           {new Date(c.created_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
-                      <p className="text-[13px] text-[#141414] leading-relaxed">{c.copy_text}</p>
+                      {c.channel === "push" ? (
+                        (() => {
+                          const lines = c.copy_text.split("\n").filter(Boolean);
+                          return (
+                            <div>
+                              <p className="text-[13px] font-semibold text-[#141414] leading-snug">{lines[0]}</p>
+                              {lines.slice(1).join(" ") && (
+                                <p className="text-[12px] text-[#605F63] leading-relaxed mt-0.5">{lines.slice(1).join(" ")}</p>
+                              )}
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <p className="text-[13px] text-[#141414] leading-relaxed">{c.copy_text}</p>
+                      )}
                       <p className="text-[11px] text-[#6841E6] mt-2 h-4 opacity-0 group-hover:opacity-100 transition-opacity font-medium">
                         {copiedId === c.id ? "✓ Copied to clipboard" : "Click to copy"}
                       </p>

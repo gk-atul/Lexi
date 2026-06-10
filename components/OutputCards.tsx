@@ -1187,12 +1187,30 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
       <CrmPanel scores={currentVariant.crm_scores} total={computeCrmTotal(currentVariant.crm_scores)} />
 
       {/* ── AI refine bar ─────────────────────────────────────────────────── */}
+      <style>{`
+        @keyframes refine-breathe {
+          0%, 100% { box-shadow: 0 0 0 0px rgba(104,65,230,0.00), 0 0 0 2.5px rgba(104,65,230,0.07); }
+          50%       { box-shadow: 0 0 0 0px rgba(104,65,230,0.00), 0 0 0 2.5px rgba(104,65,230,0.18); }
+        }
+        @keyframes sparkle-pop {
+          0%, 85%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+          90%            { transform: scale(1.25) rotate(15deg); opacity: 1; }
+          95%            { transform: scale(0.95) rotate(-5deg); opacity: 0.85; }
+        }
+        .refine-bar-idle {
+          animation: refine-breathe 2.6s ease-in-out infinite;
+        }
+        .refine-sparkle {
+          animation: sparkle-pop 4s ease-in-out infinite;
+          transform-origin: center;
+        }
+      `}</style>
       <div className="mt-4 border-t border-[#E0E0E1] pt-3">
         <div
           className={`flex items-center gap-2 rounded-full border px-3 py-2 transition-colors ${
             refining
               ? "border-[#E0E0E1] bg-[#F5F5F5]"
-              : "border-[#E0E0E1] bg-white hover:border-[#B7B7B8] focus-within:border-[#6841E6]"
+              : "refine-bar-idle border-[#C5B8FA] bg-white hover:border-[#9B8AF4] focus-within:border-[#6841E6] focus-within:[animation:none]"
           }`}
         >
           {/* Sparkle icon */}
@@ -1201,7 +1219,7 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
             height="14"
             viewBox="0 0 16 16"
             fill="none"
-            className="flex-shrink-0"
+            className={`flex-shrink-0 ${refining ? "" : "refine-sparkle"}`}
             style={{ color: refining ? "#B7B7B8" : "#6841E6" }}
           >
             <path

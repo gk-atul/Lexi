@@ -28,18 +28,17 @@ export default function WriterBadge() {
   const isWriter = (session?.user as { isWriter?: boolean })?.isWriter;
   return (
     <div className="flex items-center gap-2">
-      {/* Writer badge or viewer label */}
-      {isWriter ? (
-        <span className="text-[11px] font-semibold text-[#6841E6] bg-[#EAEAFD] px-2 py-0.5 rounded-full">
-          ✦ Writer
-        </span>
-      ) : (
-        <span className="text-[11px] text-[#B7B7B8] bg-[#F5F5F5] px-2 py-0.5 rounded-full">
-          Viewer
-        </span>
+      {/* Writers get an Analytics Dashboard button */}
+      {isWriter && (
+        <Link
+          href="/analytics"
+          className="text-[11px] font-semibold text-[#6841E6] bg-[#EAEAFD] hover:bg-[#DDD9FC] px-2.5 py-1 rounded-full transition-colors"
+        >
+          Analytics
+        </Link>
       )}
 
-      {/* Avatar + sign out */}
+      {/* Avatar + dropdown */}
       <div className="relative group">
         {session.user?.image ? (
           <Image
@@ -54,10 +53,11 @@ export default function WriterBadge() {
             {session.user?.name?.[0] ?? "?"}
           </div>
         )}
-        {/* Tooltip on hover */}
         <div className="absolute right-0 top-full mt-2 hidden group-hover:flex flex-col items-end z-50">
-          <div className="bg-white border border-[#E0E0E1] rounded-[12px] p-3 shadow-lg min-w-[160px]"
-               style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.1)" }}>
+          <div
+            className="bg-white border border-[#E0E0E1] rounded-[12px] p-3 shadow-lg min-w-[160px]"
+            style={{ boxShadow: "0px 4px 20px rgba(0,0,0,0.1)" }}
+          >
             <p className="text-[12px] font-medium text-[#141414] truncate">{session.user?.name}</p>
             <p className="text-[11px] text-[#B7B7B8] truncate mb-2">{session.user?.email}</p>
             <button

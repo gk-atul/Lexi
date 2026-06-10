@@ -1281,7 +1281,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
     setLocalVariants((prev) => prev.map((v, i) => i === index ? updated : v));
   };
 
-  const handleAddMore = async () => {
+  const handleAddMore = async (count = addCount) => {
     if (!generateParams || addingMore) return;
     trackEvent({ event_type: "add_more", channel: channelKey, product });
     setAddingMore(true);
@@ -1291,7 +1291,7 @@ export default function OutputCards({ variants, channelKey, channel, product, us
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           channel: channelKey,
-          variantCount: addCount,
+          variantCount: count,
           product: generateParams.product,
           useCase: generateParams.useCase,
           context: generateParams.context,
@@ -1395,39 +1395,27 @@ export default function OutputCards({ variants, channelKey, channel, product, us
 
       {/* ── Add more variants ──────────────────────────────────────────────── */}
       {generateParams && (
-        <div className="flex items-center gap-3 pt-1">
-          <div className="flex items-center gap-1.5 text-[12px] text-[#B7B7B8]">
-            {[1, 2, 3].map((n) => (
+        <div className="flex items-center gap-2 pt-1">
+          {addingMore ? (
+            <div className="flex items-center gap-1.5 text-[12px] text-[#B7B7B8]">
+              <div className="w-3 h-3 border border-[#6841E6] border-t-transparent rounded-full animate-spin" />
+              Generating…
+            </div>
+          ) : (
+            [1, 2, 3].map((n) => (
               <button
                 key={n}
                 type="button"
-                onClick={() => setAddCount(n)}
-                className={`w-7 h-7 rounded-full border text-[12px] font-medium transition-all ${
-                  addCount === n
-                    ? "border-[#6841E6] bg-[#6841E6] text-white"
-                    : "border-[#E0E0E1] text-[#605F63] hover:border-[#6841E6] hover:text-[#6841E6]"
-                }`}
+                onClick={() => { setAddCount(n); handleAddMore(n); }}
+                className="flex items-center gap-1 text-[12px] font-medium text-[#605F63] border border-[#E0E0E1] hover:border-[#6841E6] hover:text-[#6841E6] hover:bg-[#F0EEFE] rounded-full px-2.5 py-1 transition-all"
               >
-                {n}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M5 2v6M2 5h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                {n} variant{n > 1 ? "s" : ""}
               </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={handleAddMore}
-            disabled={addingMore}
-            className="flex items-center gap-1.5 text-[12px] font-medium text-[#605F63] hover:text-[#6841E6] transition-colors disabled:opacity-40"
-          >
-            {addingMore ? (
-              <div className="w-3.5 h-3.5 border border-[#6841E6] border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.4"/>
-                <path d="M7 4v6M4 7h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-              </svg>
-            )}
-            {addingMore ? "Generating…" : `Generate ${addCount} more`}
-          </button>
+            ))
+          )}
         </div>
       )}
     </div>

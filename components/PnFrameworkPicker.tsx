@@ -50,9 +50,9 @@ export default function PnFrameworkPicker({ active, loading, onSelect }: Props) 
           );
         })}
       </div>
-      {active && (
+      {active && loading && (
         <p className="mt-2 text-[11px] text-[#605F63] italic">
-          {PN_FRAMEWORK_META[active].description} — generating{loading ? "…" : " complete"}
+          Generating{loading ? "…" : ""}
         </p>
       )}
     </div>

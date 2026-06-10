@@ -485,7 +485,7 @@ Requirements for each variant:
 - Use a different copy formula or hook angle for each variant (do not paraphrase)
 - Be transparent about exclusions, deductibles, or limits if relevant
 - Never overpromise
-- Use second person (you/your), active voice, sentence case (title case only for product/plan names)
+- Use second person (you/your), active voice, sentence case (title case only for product/plan names)${pnFramework && channel === "push" ? `\n- CRITICAL: Every variant MUST strictly follow the ${PN_FRAMEWORK_META[pnFramework].label} framework rules specified above — this is the primary structural constraint, not optional` : ""}
 
 QUALITY BAR — every variant must score 4 or above on ALL of the following dimensions. Use these as a checklist before finalising each variant:
 - key_hook ≥ 4: The opening line immediately earns attention and is specific to this user's situation — not generic.

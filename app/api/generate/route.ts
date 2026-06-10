@@ -8,6 +8,9 @@ import { getJourneyContext, recordJourneyGeneration } from "@/lib/journey-memory
 import { getWordRules, sanitizeCopy, buildWordRulesBlock } from "@/lib/word-rules";
 import { getTovRules, buildTovRulesBlock } from "@/lib/tov-rules";
 import { recordUsageEvent } from "@/lib/analytics";
+import { saveUserCopy } from "@/lib/user-copies";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -193,6 +196,19 @@ export async function POST(req: NextRequest) {
         has_reference:     !!referenceText,
         is_drip:           !!dripDay,
       });
+    } catch { /* non-fatal */ }
+
+    // Save copies to user history if signed in (non-fatal)
+    try {
+      const session = await getServerSession(authOptions);
+      const email = session?.user?.email;
+      if (email) {
+        await Promise.all(
+          normalised.map((v: { copy: string }) =>
+            saveUserCopy({ user_email: email, channel: channel ?? "", product: product ?? "", use_case: useCase ?? "", copy_text: v.copy })
+          )
+        );
+      }
     } catch { /* non-fatal */ }
 
     return NextResponse.json({ variants: normalised });

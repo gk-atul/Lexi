@@ -67,6 +67,13 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS config (
     key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL
   )`,
+  `CREATE TABLE IF NOT EXISTS user_copies (
+    id TEXT PRIMARY KEY, user_email TEXT NOT NULL,
+    channel TEXT NOT NULL DEFAULT '', product TEXT NOT NULL DEFAULT '',
+    use_case TEXT NOT NULL DEFAULT '', copy_text TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_user_copies_email ON user_copies (user_email, created_at)`,
 ];
 
 export async function ensureMigrated(): Promise<void> {

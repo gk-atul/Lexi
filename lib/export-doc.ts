@@ -5,30 +5,14 @@ import {
   Paragraph,
   TextRun,
   HeadingLevel,
-  AlignmentType,
   BorderStyle,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
-  ShadingType,
 } from "docx";
-
-interface CrmScores {
-  key_hook: number;
-  contextualisation: number;
-  personalisation: number;
-  user_first: number;
-  cta_clarity: number;
-  positive_tone: number;
-  emotional_appeal: number;
-  trust_building: number;
-}
 
 export interface ExportVariant {
   copy: string;
-  crm_scores: CrmScores;
-  crm_total: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  crm_scores?: any;
+  crm_total?: number;
 }
 
 export interface ExportOptions {
@@ -39,107 +23,11 @@ export interface ExportOptions {
   variants: ExportVariant[];
 }
 
-const CRM_LABELS: Record<string, string> = {
-  key_hook: "Key hook",
-  contextualisation: "Contextualisation",
-  personalisation: "Personalisation",
-  user_first: "User-first",
-  cta_clarity: "CTA clarity",
-  positive_tone: "Positive tone",
-  emotional_appeal: "Emotional appeal",
-  trust_building: "Trust building",
-};
-
-const BORDER = { style: BorderStyle.SINGLE, size: 1, color: "E0E0E1" };
-const BORDERS = { top: BORDER, bottom: BORDER, left: BORDER, right: BORDER };
-
 function divider(): Paragraph {
   return new Paragraph({
     border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "EAEAFD", space: 1 } },
     spacing: { before: 320, after: 320 },
     children: [],
-  });
-}
-
-function crmTable(scores: CrmScores, total: number): Table {
-  const scoreRows = Object.entries(scores).map(([key, val]) =>
-    new TableRow({
-      children: [
-        new TableCell({
-          borders: BORDERS,
-          width: { size: 4800, type: WidthType.DXA },
-          margins: { top: 60, bottom: 60, left: 120, right: 120 },
-          shading: { fill: "FAFAFA", type: ShadingType.CLEAR },
-          children: [
-            new Paragraph({
-              children: [new TextRun({ text: CRM_LABELS[key] ?? key, font: "Arial", size: 18, color: "605F63" })],
-            }),
-          ],
-        }),
-        new TableCell({
-          borders: BORDERS,
-          width: { size: 1560, type: WidthType.DXA },
-          margins: { top: 60, bottom: 60, left: 120, right: 120 },
-          children: [
-            new Paragraph({
-              alignment: AlignmentType.RIGHT,
-              children: [
-                new TextRun({
-                  text: `${val} / 5`,
-                  font: "Arial",
-                  size: 18,
-                  bold: true,
-                  color: val >= 4 ? "15803D" : val >= 3 ? "A76406" : "DC2626",
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    })
-  );
-
-  // Total row
-  const totalRow = new TableRow({
-    children: [
-      new TableCell({
-        borders: BORDERS,
-        width: { size: 4800, type: WidthType.DXA },
-        margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        shading: { fill: "EAEAFD", type: ShadingType.CLEAR },
-        children: [
-          new Paragraph({
-            children: [new TextRun({ text: "CRM Total", font: "Arial", size: 20, bold: true, color: "141414" })],
-          }),
-        ],
-      }),
-      new TableCell({
-        borders: BORDERS,
-        width: { size: 1560, type: WidthType.DXA },
-        margins: { top: 80, bottom: 80, left: 120, right: 120 },
-        shading: { fill: "EAEAFD", type: ShadingType.CLEAR },
-        children: [
-          new Paragraph({
-            alignment: AlignmentType.RIGHT,
-            children: [
-              new TextRun({
-                text: `${total.toFixed(1)} / 5`,
-                font: "Arial",
-                size: 20,
-                bold: true,
-                color: "6841E6",
-              }),
-            ],
-          }),
-        ],
-      }),
-    ],
-  });
-
-  return new Table({
-    width: { size: 6360, type: WidthType.DXA },
-    columnWidths: [4800, 1560],
-    rows: [...scoreRows, totalRow],
   });
 }
 
@@ -151,7 +39,7 @@ export async function exportToDoc(opts: ExportOptions): Promise<void> {
     year: "numeric",
   });
 
-  const children: (Paragraph | Table)[] = [];
+  const children: Paragraph[] = [];
 
   // ── Title ────────────────────────────────────────────────────────────────
   children.push(
@@ -228,22 +116,8 @@ export async function exportToDoc(opts: ExportOptions): Promise<void> {
 
       children.push(
         new Paragraph({
-          spacing: { after: 60 },
-          children: [
-            new TextRun({ text: "Headline  ", font: "Arial", size: 18, bold: true, color: "6841E6" }),
-            new TextRun({ text: `(${headline.length}/33)`, font: "Arial", size: 16, color: headline.length > 33 ? "DC2626" : "B7B7B8" }),
-          ],
-        }),
-        new Paragraph({
-          spacing: { after: 160 },
+          spacing: { after: 100 },
           children: [new TextRun({ text: headline, font: "Arial", size: 22, bold: true, color: "141414" })],
-        }),
-        new Paragraph({
-          spacing: { after: 60 },
-          children: [
-            new TextRun({ text: "Body  ", font: "Arial", size: 18, bold: true, color: "6841E6" }),
-            new TextRun({ text: `(${body.length}/75)`, font: "Arial", size: 16, color: body.length > 75 ? "DC2626" : "B7B7B8" }),
-          ],
         }),
         new Paragraph({
           spacing: { after: 240 },
@@ -253,28 +127,16 @@ export async function exportToDoc(opts: ExportOptions): Promise<void> {
     } else {
       // For WA/Email/In-app — render copy as paragraphs split by newlines
       const lines = v.copy.split("\n");
-      lines.forEach((line, li) => {
+      lines.forEach((line) => {
         children.push(
           new Paragraph({
             spacing: { after: line.trim() === "" ? 80 : 120 },
-            children: [
-              new TextRun({ text: line, font: "Arial", size: 22, color: "141414" }),
-            ],
+            children: [new TextRun({ text: line, font: "Arial", size: 22, color: "141414" })],
           })
         );
-        void li;
       });
       children.push(new Paragraph({ spacing: { after: 120 }, children: [] }));
     }
-
-    // CRM score table
-    children.push(
-      new Paragraph({
-        spacing: { after: 120 },
-        children: [new TextRun({ text: "CRM Scores", font: "Arial", size: 18, bold: true, color: "605F63" })],
-      })
-    );
-    children.push(crmTable(v.crm_scores, v.crm_total));
 
     if (i < variants.length - 1) {
       children.push(divider());

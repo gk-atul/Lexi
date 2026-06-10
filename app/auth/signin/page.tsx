@@ -46,6 +46,12 @@ function SignInContent() {
           Not a writer? You can still use the generator — just without rating.
         </p>
       </div>
+
+      <div className="flex gap-4 mt-5">
+        <a href="/" className="text-[11px] text-[#B7B7B8] hover:text-[#6841E6] transition-colors">← Back to generator</a>
+        <span className="text-[#E0E0E1]">·</span>
+        <a href="/login" className="text-[11px] text-[#B7B7B8] hover:text-[#6841E6] transition-colors">Admin dashboard</a>
+      </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function WriterBadge() {
   if (!session) {
     return (
       <Link
-        href="/login"
+        href="/auth/signin"
         className="flex items-center gap-1.5 text-[12px] font-medium text-[#605F63] border border-[#E0E0E1] hover:border-[#6841E6] hover:text-[#6841E6] rounded-full px-3 py-1.5 transition-all"
       >
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none">

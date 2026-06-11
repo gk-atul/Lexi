@@ -1,6 +1,14 @@
 import { getDb, ensureMigrated } from "./db";
 import crypto from "crypto";
 
+// Gemini 2.5 Pro pricing (USD per token)
+const COST_PER_INPUT_TOKEN  = 1.25  / 1_000_000; // $1.25 / 1M
+const COST_PER_OUTPUT_TOKEN = 10.00 / 1_000_000; // $10   / 1M
+
+export function calcCost(tokensIn: number, tokensOut: number): number {
+  return tokensIn * COST_PER_INPUT_TOKEN + tokensOut * COST_PER_OUTPUT_TOKEN;
+}
+
 export interface UsageEventInput {
   event_type: "generate" | "copy" | "regenerate" | "add_more" | "refine" | "export" | "drip_cell";
   channel?: string;
@@ -16,6 +24,8 @@ export interface UsageEventInput {
   has_reference?: boolean;
   is_drip?: boolean;
   writer_id?: string;
+  tokens_in?: number;
+  tokens_out?: number;
 }
 
 export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
@@ -25,8 +35,8 @@ export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
       sql: `INSERT INTO usage_events
         (id, event_type, channel, product, use_case, comm_type, tone,
          pn_framework, variant_count, has_user_desc, has_desired_action,
-         has_non_neg, has_reference, is_drip, writer_id, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         has_non_neg, has_reference, is_drip, writer_id, tokens_in, tokens_out, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         crypto.randomUUID(),
         data.event_type,
@@ -43,6 +53,8 @@ export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
         data.has_reference       ? 1 : 0,
         data.is_drip             ? 1 : 0,
         data.writer_id      ?? "anonymous",
+        data.tokens_in      ?? 0,
+        data.tokens_out     ?? 0,
         new Date().toISOString(),
       ],
     });
@@ -170,8 +182,35 @@ export async function getAnalytics() {
   });
   const trendRows = trendResult.rows as unknown as { day: string; n: number }[];
 
+  // Cost aggregation — tokens_in/tokens_out stored on generate/drip_cell events
+  const costQuery = async (cutoff: string | null): Promise<{ tokensIn: number; tokensOut: number }> => {
+    const r = await db.execute({
+      sql: cutoff
+        ? `SELECT COALESCE(SUM(tokens_in),0) as ti, COALESCE(SUM(tokens_out),0) as to_
+           FROM usage_events WHERE event_type IN ('generate','drip_cell') AND created_at >= ?`
+        : `SELECT COALESCE(SUM(tokens_in),0) as ti, COALESCE(SUM(tokens_out),0) as to_
+           FROM usage_events WHERE event_type IN ('generate','drip_cell')`,
+      args: cutoff ? [cutoff] : [],
+    });
+    const row = r.rows[0] as unknown as { ti: number; to_: number };
+    return { tokensIn: Number(row?.ti ?? 0), tokensOut: Number(row?.to_ ?? 0) };
+  };
+
+  const [cost7, cost30, costAll] = await Promise.all([
+    costQuery(since(7)),
+    costQuery(since(30)),
+    costQuery(null),
+  ]);
+
+  const fmt = (t: { tokensIn: number; tokensOut: number }) => ({
+    tokensIn:  t.tokensIn,
+    tokensOut: t.tokensOut,
+    usd:       Math.round(calcCost(t.tokensIn, t.tokensOut) * 10000) / 10000, // 4 decimal places
+  });
+
   return {
     generations: { last7: generations7, last30: generations30, all: generationsAll },
+    cost: { last7: fmt(cost7), last30: fmt(cost30), all: fmt(costAll) },
     interactions30: { copies: copies30, regenerates: regenerates30, addMore: addMore30, refines: refines30, exports: exports30 },
     channels: channelRows,
     products: productRows,

@@ -110,6 +110,10 @@ export async function POST(req: NextRequest) {
     let result = await model.generateContent(prompt);
     let variants = parseVariants(result.response.text().trim());
 
+    // Accumulate token usage across attempts
+    let totalTokensIn  = result.response.usageMetadata?.promptTokenCount     ?? 0;
+    let totalTokensOut = result.response.usageMetadata?.candidatesTokenCount ?? 0;
+
     // If any variant has any crm_score below 4, retry once with an explicit nudge
     const hasBelowFour = (vs: Record<string, unknown>[]) =>
       vs.some((v) => {
@@ -125,6 +129,8 @@ export async function POST(req: NextRequest) {
         "Do not return the same copy. Every dimension in crm_scores must be 4 or 5.";
       result = await model.generateContent(retryPrompt);
       variants = parseVariants(result.response.text().trim());
+      totalTokensIn  += result.response.usageMetadata?.promptTokenCount     ?? 0;
+      totalTokensOut += result.response.usageMetadata?.candidatesTokenCount ?? 0;
     }
 
     const stripMarkdown = (s: string) =>
@@ -195,6 +201,8 @@ export async function POST(req: NextRequest) {
         has_non_neg:       !!nonNegotiables,
         has_reference:     !!referenceText,
         is_drip:           !!dripDay,
+        tokens_in:         totalTokensIn,
+        tokens_out:        totalTokensOut,
       });
     } catch { /* non-fatal */ }
 

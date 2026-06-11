@@ -76,11 +76,20 @@ const SCHEMA = [
   `CREATE INDEX IF NOT EXISTS idx_user_copies_email ON user_copies (user_email, created_at)`,
 ];
 
+// Additive column migrations — safe to run repeatedly (errors are silently swallowed)
+const COLUMN_MIGRATIONS = [
+  "ALTER TABLE usage_events ADD COLUMN tokens_in  INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE usage_events ADD COLUMN tokens_out INTEGER NOT NULL DEFAULT 0",
+];
+
 export async function ensureMigrated(): Promise<void> {
   if (g._migrated) return;
   const db = getDb();
   for (const sql of SCHEMA) {
     await db.execute(sql);
+  }
+  for (const sql of COLUMN_MIGRATIONS) {
+    try { await db.execute(sql); } catch { /* column already exists */ }
   }
   g._migrated = true;
 }

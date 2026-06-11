@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+interface CostBucket { tokensIn: number; tokensOut: number; usd: number; }
+
 interface Analytics {
   generations: { last7: number; last30: number; all: number };
+  cost?: { last7: CostBucket; last30: CostBucket; all: CostBucket };
   interactions30: { copies: number; regenerates: number; addMore: number; refines: number; exports: number };
   channels: { channel: string; n: number }[];
   products: { product: string; n: number }[];
@@ -130,6 +133,38 @@ export default function AnalyticsPanel() {
                   ))}
                 </div>
               </div>
+
+              {/* ── Cost ──────────────────────────────────────────────────── */}
+              {data.cost && (
+                <div>
+                  <p className="text-[11px] font-semibold text-[#605F63] uppercase tracking-[0.4px] mb-2">API cost (Gemini 2.5 Pro)</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "This week",    bucket: data.cost.last7  },
+                      { label: "Last 30 days", bucket: data.cost.last30 },
+                      { label: "All time",     bucket: data.cost.all    },
+                    ].map(({ label, bucket }) => {
+                      const cents = bucket.usd * 100;
+                      const display = bucket.usd === 0
+                        ? "$0"
+                        : cents < 1
+                        ? `¢${(cents).toFixed(2)}`
+                        : `$${bucket.usd.toFixed(2)}`;
+                      return (
+                        <div
+                          key={label}
+                          title={`${bucket.tokensIn.toLocaleString()} in · ${bucket.tokensOut.toLocaleString()} out`}
+                          className="bg-white border border-[#F0F0F1] rounded-xl p-3 text-center cursor-default"
+                        >
+                          <p className="text-[18px] font-semibold text-[#141414]">{display}</p>
+                          <p className="text-[10px] text-[#B7B7B8] mt-0.5">{label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-[#B7B7B8] mt-1.5">Hover a tile for token breakdown · $1.25/1M input · $10/1M output</p>
+                </div>
+              )}
 
               {/* ── 14-day trend ───────────────────────────────────────────── */}
               {data.trend.length > 0 && (

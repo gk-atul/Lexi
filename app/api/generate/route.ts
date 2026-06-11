@@ -203,6 +203,11 @@ export async function POST(req: NextRequest) {
         is_drip:           !!dripDay,
         tokens_in:         totalTokensIn,
         tokens_out:        totalTokensOut,
+        brief_context:     context         ?? "",
+        brief_user_desc:   userDescription ?? "",
+        brief_action:      desiredAction   ?? "",
+        brief_non_neg:     nonNegotiables  ?? "",
+        brief_reference:   referenceText   ?? "",
       });
     } catch { /* non-fatal */ }
 

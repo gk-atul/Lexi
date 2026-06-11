@@ -78,8 +78,14 @@ const SCHEMA = [
 
 // Additive column migrations — safe to run repeatedly (errors are silently swallowed)
 const COLUMN_MIGRATIONS = [
-  "ALTER TABLE usage_events ADD COLUMN tokens_in  INTEGER NOT NULL DEFAULT 0",
-  "ALTER TABLE usage_events ADD COLUMN tokens_out INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE usage_events ADD COLUMN tokens_in        INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE usage_events ADD COLUMN tokens_out       INTEGER NOT NULL DEFAULT 0",
+  // Brief text fields — full content for data analysis
+  "ALTER TABLE usage_events ADD COLUMN brief_context    TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE usage_events ADD COLUMN brief_user_desc  TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE usage_events ADD COLUMN brief_action     TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE usage_events ADD COLUMN brief_non_neg    TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE usage_events ADD COLUMN brief_reference  TEXT NOT NULL DEFAULT ''",
 ];
 
 export async function ensureMigrated(): Promise<void> {

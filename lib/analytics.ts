@@ -26,6 +26,12 @@ export interface UsageEventInput {
   writer_id?: string;
   tokens_in?: number;
   tokens_out?: number;
+  // Full brief text for data analysis
+  brief_context?: string;
+  brief_user_desc?: string;
+  brief_action?: string;
+  brief_non_neg?: string;
+  brief_reference?: string;
 }
 
 export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
@@ -35,8 +41,10 @@ export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
       sql: `INSERT INTO usage_events
         (id, event_type, channel, product, use_case, comm_type, tone,
          pn_framework, variant_count, has_user_desc, has_desired_action,
-         has_non_neg, has_reference, is_drip, writer_id, tokens_in, tokens_out, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         has_non_neg, has_reference, is_drip, writer_id, tokens_in, tokens_out,
+         brief_context, brief_user_desc, brief_action, brief_non_neg, brief_reference,
+         created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         crypto.randomUUID(),
         data.event_type,
@@ -55,6 +63,11 @@ export async function recordUsageEvent(data: UsageEventInput): Promise<void> {
         data.writer_id      ?? "anonymous",
         data.tokens_in      ?? 0,
         data.tokens_out     ?? 0,
+        data.brief_context   ?? "",
+        data.brief_user_desc ?? "",
+        data.brief_action    ?? "",
+        data.brief_non_neg   ?? "",
+        data.brief_reference ?? "",
         new Date().toISOString(),
       ],
     });

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ACKO Copy Generator — Stakeholder Deck</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #6841E6;
+    --purple-light: #EDE9FC;
+    --purple-mid: #9B7CF0;
+    --dark: #0E0B1A;
+    --ink: #141414;
+    --muted: #605F63;
+    --rule: #E0E0E1;
+    --white: #FFFFFF;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  /* ── Deck shell ── */
+  #deck { width: 100vw; height: 100vh; position: relative; }
+
+  /* ── Progress bar ── */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: var(--purple); z-index: 100;
+    transition: width 0.35s ease;
+  }
+
+  /* ── Dot nav ── */
+  #dots {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 100;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer; transition: all 0.25s;
+  }
+  .dot.active { background: var(--white); transform: scale(1.3); }
+
+  /* ── Arrow nav ── */
+  .arrow {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4); width: 40px; height: 40px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 100; transition: all 0.2s; font-size: 16px;
+    user-select: none;
+  }
+  .arrow:hover { background: rgba(255,255,255,0.12); color: white; }
+  #prev { left: 20px; }
+  #next { right: 20px; }
+
+  /* ── Slide base ── */
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 64px 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    transform: translateX(40px);
+  }
+  .slide.active {
+    opacity: 1; pointer-events: auto;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0; transform: translateX(-40px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  /* ── Slide counter ── */
+  .slide-num {
+    position: fixed; top: 24px; right: 28px;
+    font-size: 11px; color: rgba(255,255,255,0.25);
+    font-variant-numeric: tabular-nums; z-index: 100;
+  }
+
+  /* ── Typography ── */
+  .eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--purple-mid);
+    margin-bottom: 16px;
+  }
+  .title-xl {
+    font-size: clamp(36px, 5vw, 60px); font-weight: 700;
+    line-height: 1.1; text-align: center;
+  }
+  .title-lg {
+    font-size: clamp(28px, 3.5vw, 44px); font-weight: 700;
+    line-height: 1.15;
+  }
+  .subtitle {
+    font-size: clamp(14px, 1.8vw, 20px); color: rgba(255,255,255,0.55);
+    line-height: 1.6; margin-top: 16px; text-align: center;
+  }
+  .body { font-size: 16px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+  .highlight { color: var(--white); font-weight: 600; }
+
+  /* ── Cards ── */
+  .cards { display: grid; gap: 16px; width: 100%; }
+  .cards.cols-2 { grid-template-columns: 1fr 1fr; }
+  .cards.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 16px; padding: 24px 28px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; color: var(--white);
+    margin-bottom: 8px;
+  }
+  .card-body {
+    font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6;
+  }
+  .card-icon {
+    font-size: 22px; margin-bottom: 12px;
+  }
+
+  /* ── Accent card (purple) ── */
+  .card.accent {
+    background: rgba(104,65,230,0.18);
+    border-color: rgba(104,65,230,0.35);
+  }
+  .card.accent .card-title { color: #C4B3FF; }
+
+  /* ── Number stat ── */
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: clamp(40px, 5vw, 64px); font-weight: 700;
+    color: var(--white); line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px; color: rgba(255,255,255,0.4);
+    margin-top: 8px; text-transform: uppercase; letter-spacing: 0.8px;
+  }
+
+  /* ── Flow steps ── */
+  .flow {
+    display: flex; align-items: center; gap: 0; width: 100%;
+    margin-top: 32px;
+  }
+  .flow-step {
+    flex: 1; text-align: center; padding: 20px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    position: relative;
+  }
+  .flow-step-num {
+    font-size: 10px; font-weight: 700; color: var(--purple-mid);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .flow-step-title { font-size: 15px; font-weight: 700; color: white; }
+  .flow-step-body { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 5px; line-height: 1.5; }
+  .flow-arrow {
+    font-size: 18px; color: rgba(255,255,255,0.2);
+    padding: 0 12px; flex-shrink: 0;
+  }
+
+  /* ── Tag chip ── */
+  .chip {
+    display: inline-block; padding: 3px 10px;
+    background: rgba(104,65,230,0.2);
+    border: 1px solid rgba(104,65,230,0.35);
+    border-radius: 20px; font-size: 11px;
+    color: #C4B3FF; font-weight: 600;
+    margin: 3px;
+  }
+
+  /* ── Divider line ── */
+  .rule { width: 40px; height: 3px; background: var(--purple); border-radius: 2px; margin: 20px 0; }
+
+  /* ── Caveat box ── */
+  .caveat {
+    background: rgba(255,255,255,0.04);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 24px;
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    line-height: 1.7; width: 100%; margin-top: 24px;
+  }
+
+  /* ── Slide-specific backgrounds ── */
+  .slide.title-slide { background: var(--dark); }
+  .slide.light-slide {
+    background: var(--white); color: var(--ink);
+  }
+  .slide.light-slide .eyebrow { color: var(--purple); }
+  .slide.light-slide .title-lg { color: var(--ink); }
+  .slide.light-slide .card {
+    background: #FAFAFA; border-color: var(--rule); color: var(--ink);
+  }
+  .slide.light-slide .card-title { color: var(--ink); }
+  .slide.light-slide .card-body { color: var(--muted); }
+  .slide.light-slide .caveat { background: var(--purple-light); border-color: var(--purple); color: var(--muted); }
+  .slide.light-slide .highlight { color: var(--purple); }
+  .slide.light-slide .body { color: var(--muted); }
+  .slide.light-slide .subtitle { color: var(--muted); }
+
+  /* ── Purple slide ── */
+  .slide.purple-slide { background: var(--purple); }
+  .slide.purple-slide .eyebrow { color: rgba(255,255,255,0.6); }
+  .slide.purple-slide .card {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .slide.purple-slide .card-title { color: white; }
+  .slide.purple-slide .card-body { color: rgba(255,255,255,0.65); }
+
+  /* ── List ── */
+  ul.clean { list-style: none; padding: 0; width: 100%; }
+  ul.clean li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: 15px; color: rgba(255,255,255,0.75); line-height: 1.5;
+  }
+  ul.clean li:last-child { border-bottom: none; }
+  ul.clean li span.bullet {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(104,65,230,0.25); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--purple-mid);
+    margin-top: 1px;
+  }
+  .slide.light-slide ul.clean li { color: var(--muted); border-bottom-color: var(--rule); }
+  .slide.light-slide ul.clean li span.bullet {
+    background: var(--purple-light); color: var(--purple);
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="dots"></div>
+<div class="arrow" id="prev">&#8592;</div>
+<div class="arrow" id="next">&#8594;</div>
+<div class="slide-num" id="counter"></div>
+
+<div id="deck">
+
+  <!-- ── SLIDE 1: Title ── -->
+  <div class="slide title-slide active" data-index="0">
+    <div class="eyebrow">Internal tool</div>
+    <h1 class="title-xl">ACKO Copy Generator</h1>
+    <p class="subtitle" style="max-width:520px">Purpose-built AI copy for ACKO — not a generic prompt box, a tool that knows our channels, products, and brand.</p>
+    <div style="margin-top:40px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center">
+      <span class="chip">Push Notifications</span>
+      <span class="chip">WhatsApp</span>
+      <span class="chip">Email</span>
+      <span class="chip">In-App</span>
+      <span class="chip">Auto · Health · Life · Travel</span>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 2: The Problem ── -->
+  <div class="slide" data-index="1">
+    <div style="max-width:760px; width:100%">
+      <div class="eyebrow">The problem</div>
+      <h2 class="title-lg">Copy briefs take too long — and too much gets left on the table.</h2>
+      <div class="rule"></div>
+      <div class="cards cols-2" style="margin-top:8px">
+        <div class="card">
+          <div class="card-icon">⏱</div>
+          <div class="card-title">20–40 min per brief</div>
+          <div class="card-body">A single push notification brief — drafting, iterating, checking brand fit — eats up nearly an hour of a writer's time.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🔁</div>
+          <div class="card-title">One angle explored</div>
+          <div class="card-body">Writers rarely have time to explore multiple psychological hooks or frameworks per brief. The first decent option usually ships.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <div class="card-title">No consistent quality bar</div>
+          <div class="card-body">No structured way to evaluate copy quality before it goes out. Judgement is entirely subjective and person-dependent.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧩</div>
+          <div class="card-title">Context not captured</div>
+          <div class="card-body">Every brief starts from scratch. Past copy, what worked, what didn't — none of it is systematically fed back in.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 3: How It Works ── -->
+  <div class="slide light-slide" data-index="2">
+    <div style="max-width:820px; width:100%">
+      <div class="eyebrow">How it works</div>
+      <h2 class="title-lg">Brief in. Three scored variants out. Under 30 seconds.</h2>
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-step-num">Step 1</div>
+          <div class="flow-step-title">Fill the brief</div>
+          <div class="flow-step-body">Channel, product, user context, desired action</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">Step 2</div>
+          <div class="flow-step-title">Generate</div>
+          <div class="flow-step-body">Gemini + ACKO ToV + channel rules + CRM framework</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">Step 3</div>
+          <div class="flow-step-title">Pick &amp; refine</div>
+          <div class="flow-step-body">3 scored variants, inline AI refinement, one-click export</div>
+        </div>
+      </div>
+      <div class="caveat" style="margin-top:28px">
+        The writer stays in the loop at every step — the tool accelerates the brief, it doesn't replace the decision.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 4: Not Just GPT ── -->
+  <div class="slide" data-index="3">
+    <div style="max-width:760px; width:100%">
+      <div class="eyebrow">Why not just use ChatGPT?</div>
+      <h2 class="title-lg">Three things make this different.</h2>
+      <div class="rule"></div>
+      <ul class="clean" style="margin-top:8px">
+        <li>
+          <span class="bullet">1</span>
+          <div>
+            <span class="highlight">It knows ACKO's context.</span>
+            Generic GPT doesn't know our tone of voice, what NCB means to a renewal customer, or that push copy has a 33/75 character limit. All of that is baked in here.
+          </div>
+        </li>
+        <li>
+          <span class="bullet">2</span>
+          <div>
+            <span class="highlight">It gives structure, not just text.</span>
+            GPT gives you prose. This gives you scored, structured variants — headline vs. body split, CRM quality scores across 8 dimensions, a live phone preview.
+          </div>
+        </li>
+        <li>
+          <span class="bullet">3</span>
+          <div>
+            <span class="highlight">The output is decision-ready.</span>
+            No prompt engineering, no reformatting, no brand-checking. Brief in, variants out — feedback, refinement, and export all in one place.
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 5: Key Features ── -->
+  <div class="slide purple-slide" data-index="4">
+    <div style="max-width:800px; width:100%">
+      <div class="eyebrow">Key features</div>
+      <h2 class="title-lg" style="color:white">What the tool actually does.</h2>
+      <div class="cards cols-3" style="margin-top:28px">
+        <div class="card">
+          <div class="card-icon">📱</div>
+          <div class="card-title">Live phone preview</div>
+          <div class="card-body">See exactly how the push notification looks on a real lockscreen, in real time.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📊</div>
+          <div class="card-title">CRM scoring</div>
+          <div class="card-body">Every variant scored across 8 dimensions — key hook, personalisation, CTA clarity, emotional appeal, and more.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧠</div>
+          <div class="card-title">PN frameworks</div>
+          <div class="card-body">Instantly rewrite any variant using PAS, BAB, FOMO, Curiosity Gap, Social Proof, and more — one click.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">✍️</div>
+          <div class="card-title">Inline AI refinement</div>
+          <div class="card-body">"Make it shorter." "Add urgency." Natural language instructions applied to any variant without losing the rest.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">👍</div>
+          <div class="card-title">Feedback loop</div>
+          <div class="card-body">Thumbs up / down on every variant. Signals feed back into future generation quality over time.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon">📤</div>
+          <div class="card-title">Export to .doc</div>
+          <div class="card-body">One-click export of all variants, formatted and ready for the brief handoff or review.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 6: Traction ── -->
+  <div class="slide light-slide" data-index="5">
+    <div style="max-width:720px; width:100%; text-align:center">
+      <div class="eyebrow">Usage</div>
+      <h2 class="title-lg" style="text-align:center">Real usage, real briefs.</h2>
+      <div class="cards cols-3" style="margin-top:32px">
+        <div class="card stat">
+          <div class="stat-num" style="color:var(--purple)">—</div>
+          <div class="stat-label" style="color:var(--muted)">Generations this week</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-num" style="color:var(--purple)">—</div>
+          <div class="stat-label" style="color:var(--muted)">Last 30 days</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-num" style="color:var(--purple)">—</div>
+          <div class="stat-label" style="color:var(--muted)">All time</div>
+        </div>
+      </div>
+      <p class="body" style="margin-top:24px; font-size:13px; color:var(--muted)">
+        Pull live numbers from the Usage panel before presenting — top channel, top product, and copy rate are the most useful to highlight.
+      </p>
+      <div class="caveat">
+        Even at low volume, the quality bar shift matters more than the count — writers are exploring more angles per brief than they were before.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 7: Roadmap ── -->
+  <div class="slide" data-index="6">
+    <div style="max-width:720px; width:100%">
+      <div class="eyebrow">Where it's heading</div>
+      <h2 class="title-lg">The loop gets smarter over time.</h2>
+      <div class="rule"></div>
+      <ul class="clean" style="margin-top:8px">
+        <li>
+          <span class="bullet">↑</span>
+          <div>
+            <span class="highlight">Feedback feeds generation.</span>
+            Every thumbs-up and thumbs-down is stored. As volume grows, the model learns what good ACKO copy actually looks like — not in theory, but from real writer judgement.
+          </div>
+        </li>
+        <li>
+          <span class="bullet">📈</span>
+          <div>
+            <span class="highlight">Analytics already tracking signal.</span>
+            Which channels get used most, which products, which comm types. Early data already showing where the tool is pulling the most weight.
+          </div>
+        </li>
+        <li>
+          <span class="bullet">🔌</span>
+          <div>
+            <span class="highlight">More channels, deeper context.</span>
+            Email and WhatsApp are next for richer templates. Longer-term: connecting brief data to actual campaign performance.
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── SLIDE 8: Closing ── -->
+  <div class="slide title-slide" data-index="7">
+    <div style="max-width:600px; text-align:center">
+      <div class="eyebrow">The bottom line</div>
+      <h2 class="title-xl" style="font-size:clamp(30px,4vw,50px)">First-draft accelerator — not a replacement for editorial judgement.</h2>
+      <p class="subtitle" style="margin-top:24px">
+        The writer still decides what ships.<br/>
+        The tool just makes sure they've seen more options, faster, with a quality bar already applied.
+      </p>
+      <div style="margin-top:48px; padding:24px 32px; background:rgba(104,65,230,0.15); border:1px solid rgba(104,65,230,0.3); border-radius:16px">
+        <p style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px; font-weight:700">Try it</p>
+        <p style="font-size:18px; font-weight:600; color:white">angelou.vercel.app</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  let current = 0;
+
+  const progress  = document.getElementById('progress');
+  const dotsEl    = document.getElementById('dots');
+  const counterEl = document.getElementById('counter');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => go(i));
+    dotsEl.appendChild(d);
+  });
+
+  function update() {
+    const dots = dotsEl.querySelectorAll('.dot');
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'exit');
+      if (i === current) s.classList.add('active');
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    progress.style.width = `${((current + 1) / total) * 100}%`;
+    counterEl.textContent = `${current + 1} / ${total}`;
+  }
+
+  function go(n) {
+    if (n === current) return;
+    const prev = slides[current];
+    prev.classList.add('exit');
+    setTimeout(() => prev.classList.remove('exit'), 350);
+    current = Math.max(0, Math.min(total - 1, n));
+    update();
+  }
+
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(current - 1);
+  });
+
+  update();
+</script>
+</body>
+</html>

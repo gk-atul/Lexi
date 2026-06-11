@@ -185,7 +185,7 @@ export default function AnalyticsDashboard() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      <main className="max-w-[1400px] mx-auto px-6 py-8">
 
         {/* ── Brief Log tab ─────────────────────────────────────────────────── */}
         {tab === "briefs" && (
@@ -239,11 +239,25 @@ export default function AnalyticsDashboard() {
                 style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.04)" }}
               >
                 <div className="overflow-x-auto">
-                  <table className="w-full text-[12px]">
+                  <table className="text-[12px]" style={{ minWidth: "1400px" }}>
+                    <colgroup>
+                      <col style={{ width: "80px"  }} />{/* Date */}
+                      <col style={{ width: "80px"  }} />{/* LoB */}
+                      <col style={{ width: "90px"  }} />{/* Channel */}
+                      <col style={{ width: "110px" }} />{/* Use case */}
+                      <col style={{ width: "110px" }} />{/* Comm type */}
+                      <col style={{ width: "90px"  }} />{/* Tone */}
+                      <col style={{ width: "60px"  }} />{/* Drip */}
+                      <col style={{ width: "240px" }} />{/* Context */}
+                      <col style={{ width: "180px" }} />{/* User */}
+                      <col style={{ width: "160px" }} />{/* Action */}
+                      <col style={{ width: "160px" }} />{/* Non-neg */}
+                      <col style={{ width: "160px" }} />{/* Reference */}
+                    </colgroup>
                     <thead>
                       <tr className="border-b border-[#F0F0F1] bg-[#FAFAFA]">
                         {["Date", "LoB", "Channel", "Use case", "Comm type", "Tone", "Drip", "Context", "User", "Action", "Non-neg", "Reference"].map((h) => (
-                          <th key={h} className="text-left px-3 py-2.5 text-[10px] font-semibold text-[#B7B7B8] uppercase tracking-[0.5px] whitespace-nowrap">
+                          <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[#B7B7B8] uppercase tracking-[0.5px] whitespace-nowrap">
                             {h}
                           </th>
                         ))}
@@ -252,36 +266,30 @@ export default function AnalyticsDashboard() {
                     <tbody>
                       {briefs.rows.map((row, i) => (
                         <tr key={i} className="border-b border-[#F8F8F8] hover:bg-[#FAFAFA] align-top">
-                          <td className="px-3 py-2.5 text-[#B7B7B8] whitespace-nowrap">
+                          <td className="px-4 py-3 text-[#B7B7B8] whitespace-nowrap">
                             {new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                           </td>
-                          <td className="px-3 py-2.5 font-medium text-[#141414] whitespace-nowrap">
+                          <td className="px-4 py-3 font-medium text-[#141414]">
                             {PRODUCT_LABELS[row.product] ?? (row.product || "—")}
                           </td>
-                          <td className="px-3 py-2.5 whitespace-nowrap text-[#605F63]">
+                          <td className="px-4 py-3 text-[#605F63]">
                             {CHANNEL_LABELS[row.channel] ?? (row.channel || "—")}
                           </td>
-                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
-                            {row.use_case || "—"}
-                          </td>
-                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
-                            {row.comm_type || "—"}
-                          </td>
-                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
-                            {row.tone || "—"}
-                          </td>
-                          <td className="px-3 py-2.5 text-center">
+                          <td className="px-4 py-3 text-[#605F63]">{row.use_case || "—"}</td>
+                          <td className="px-4 py-3 text-[#605F63]">{row.comm_type || "—"}</td>
+                          <td className="px-4 py-3 text-[#605F63]">{row.tone || "—"}</td>
+                          <td className="px-4 py-3 text-center">
                             {row.is_drip ? (
                               <span className="inline-block w-4 h-4 bg-[#EDE9FC] text-[#6841E6] rounded-full text-[9px] font-bold leading-4 text-center">Y</span>
                             ) : (
                               <span className="text-[#D0D0D1]">—</span>
                             )}
                           </td>
-                          <td className="px-3 py-2.5 text-[#605F63] max-w-[180px]"><Cell text={row.brief_context} /></td>
-                          <td className="px-3 py-2.5 text-[#605F63] max-w-[140px]"><Cell text={row.brief_user_desc} /></td>
-                          <td className="px-3 py-2.5 text-[#605F63] max-w-[140px]"><Cell text={row.brief_action} /></td>
-                          <td className="px-3 py-2.5 text-[#605F63] max-w-[120px]"><Cell text={row.brief_non_neg} /></td>
-                          <td className="px-3 py-2.5 text-[#605F63] max-w-[120px]"><Cell text={row.brief_reference} /></td>
+                          <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_context} max={160} /></td>
+                          <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_user_desc} max={120} /></td>
+                          <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_action} max={120} /></td>
+                          <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_non_neg} max={120} /></td>
+                          <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_reference} max={120} /></td>
                         </tr>
                       ))}
                     </tbody>

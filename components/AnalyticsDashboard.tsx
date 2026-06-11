@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 interface Analytics {
@@ -14,6 +14,29 @@ interface Analytics {
   trend: { day: string; n: number }[];
 }
 
+interface BriefRow {
+  created_at: string;
+  channel: string;
+  product: string;
+  use_case: string;
+  comm_type: string;
+  tone: string;
+  is_drip: number;
+  pn_framework: string;
+  brief_context: string;
+  brief_user_desc: string;
+  brief_action: string;
+  brief_non_neg: string;
+  brief_reference: string;
+}
+
+interface BriefLog {
+  rows: BriefRow[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
 function Bar({ pct, color = "bg-[#6841E6]" }: { pct: number; color?: string }) {
   return (
     <div className="flex-1 h-1.5 bg-[#F0F0F1] rounded-full overflow-hidden">
@@ -22,12 +45,6 @@ function Bar({ pct, color = "bg-[#6841E6]" }: { pct: number; color?: string }) {
   );
 }
 
-const CHANNEL_LABELS: Record<string, string> = {
-  push: "Push", whatsapp: "WhatsApp", email: "Email", "in-app": "In-App",
-};
-const PRODUCT_LABELS: Record<string, string> = {
-  auto: "Auto", health: "Health", life: "Life", travel: "Travel",
-};
 const TONE_LABELS: Record<string, string> = {
   warm: "Warm", balanced: "Balanced", direct: "Direct",
 };
@@ -35,10 +52,44 @@ const COMM_LABELS: Record<string, string> = {
   informational: "Informational", feature: "Feature", incentive: "Incentive",
 };
 
+const CHANNEL_LABELS: Record<string, string> = {
+  push: "Push", whatsapp: "WhatsApp", email: "Email", "in-app": "In-App",
+};
+const PRODUCT_LABELS: Record<string, string> = {
+  auto: "Auto", health: "Health", life: "Life", travel: "Travel",
+};
+
+function Cell({ text, max = 120 }: { text: string; max?: number }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!text) return <span className="text-[#D0D0D1]">—</span>;
+  const truncated = text.length > max && !expanded;
+  return (
+    <span>
+      {truncated ? text.slice(0, max) + "…" : text}
+      {text.length > max && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="ml-1 text-[#6841E6] text-[10px] underline-offset-2 underline"
+        >
+          {expanded ? "less" : "more"}
+        </button>
+      )}
+    </span>
+  );
+}
+
 export default function AnalyticsDashboard() {
   const router = useRouter();
+  const [tab, setTab] = useState<"overview" | "briefs">("overview");
   const [data, setData] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Brief log state
+  const [briefs, setBriefs] = useState<BriefLog | null>(null);
+  const [briefsLoading, setBriefsLoading] = useState(false);
+  const [briefPage, setBriefPage] = useState(1);
+  const [filterChannel, setFilterChannel] = useState("");
+  const [filterProduct, setFilterProduct] = useState("");
 
   const load = () => {
     setLoading(true);
@@ -52,7 +103,23 @@ export default function AnalyticsDashboard() {
       .finally(() => setLoading(false));
   };
 
+  const loadBriefs = useCallback((page: number, channel: string, product: string) => {
+    setBriefsLoading(true);
+    const params = new URLSearchParams({ page: String(page) });
+    if (channel) params.set("channel", channel);
+    if (product) params.set("product", product);
+    fetch(`/api/analytics/briefs?${params}`)
+      .then((r) => r.json())
+      .then((d) => setBriefs(d))
+      .catch(() => {})
+      .finally(() => setBriefsLoading(false));
+  }, []);
+
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (tab === "briefs") loadBriefs(briefPage, filterChannel, filterProduct);
+  }, [tab, briefPage, filterChannel, filterProduct, loadBriefs]);
 
   const maxChannel = Math.max(1, ...(data?.channels.map((c) => c.n) ?? []));
   const maxProduct = Math.max(1, ...(data?.products.map((p) => p.n) ?? []));
@@ -81,9 +148,25 @@ export default function AnalyticsDashboard() {
             <span className="text-[#E0E0E1]">/</span>
             <span className="text-[13px] font-semibold text-[#141414]">Usage Analytics</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            {/* Tab switcher */}
+            <div className="flex items-center gap-0.5 bg-[#F0F0F1] rounded-lg p-0.5">
+              {(["overview", "briefs"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-3 py-1 rounded-md text-[12px] font-medium transition-all ${
+                    tab === t
+                      ? "bg-white text-[#141414] shadow-sm"
+                      : "text-[#605F63] hover:text-[#141414]"
+                  }`}
+                >
+                  {t === "overview" ? "Overview" : "Brief Log"}
+                </button>
+              ))}
+            </div>
             <button
-              onClick={load}
+              onClick={() => tab === "overview" ? load() : loadBriefs(briefPage, filterChannel, filterProduct)}
               className="text-[#B7B7B8] hover:text-[#6841E6] transition-colors p-1"
               title="Refresh"
             >
@@ -102,20 +185,150 @@ export default function AnalyticsDashboard() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        {loading && (
+      <main className="max-w-5xl mx-auto px-6 py-8">
+
+        {/* ── Brief Log tab ─────────────────────────────────────────────────── */}
+        {tab === "briefs" && (
+          <div className="space-y-4">
+            {/* Filters */}
+            <div className="flex items-center gap-3">
+              <select
+                value={filterChannel}
+                onChange={(e) => { setFilterChannel(e.target.value); setBriefPage(1); }}
+                className="text-[12px] border border-[#E0E0E1] rounded-lg px-3 py-1.5 bg-white text-[#605F63] focus:outline-none focus:border-[#6841E6]"
+              >
+                <option value="">All channels</option>
+                <option value="push">Push</option>
+                <option value="whatsapp">WhatsApp</option>
+                <option value="email">Email</option>
+                <option value="in-app">In-App</option>
+              </select>
+              <select
+                value={filterProduct}
+                onChange={(e) => { setFilterProduct(e.target.value); setBriefPage(1); }}
+                className="text-[12px] border border-[#E0E0E1] rounded-lg px-3 py-1.5 bg-white text-[#605F63] focus:outline-none focus:border-[#6841E6]"
+              >
+                <option value="">All LoB</option>
+                <option value="auto">Auto</option>
+                <option value="health">Health</option>
+                <option value="life">Life</option>
+                <option value="travel">Travel</option>
+              </select>
+              {briefs && (
+                <span className="text-[11px] text-[#B7B7B8] ml-auto">
+                  {briefs.total} brief{briefs.total !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+
+            {briefsLoading && (
+              <div className="flex items-center justify-center py-16">
+                <p className="text-[13px] text-[#B7B7B8]">Loading…</p>
+              </div>
+            )}
+
+            {!briefsLoading && briefs?.rows.length === 0 && (
+              <div className="flex items-center justify-center py-16">
+                <p className="text-[13px] text-[#B7B7B8]">No briefs logged yet.</p>
+              </div>
+            )}
+
+            {!briefsLoading && briefs && briefs.rows.length > 0 && (
+              <div
+                className="bg-white rounded-2xl border border-[#F0F0F1] overflow-hidden"
+                style={{ boxShadow: "0px 2px 8px rgba(0,0,0,0.04)" }}
+              >
+                <div className="overflow-x-auto">
+                  <table className="w-full text-[12px]">
+                    <thead>
+                      <tr className="border-b border-[#F0F0F1] bg-[#FAFAFA]">
+                        {["Date", "LoB", "Channel", "Use case", "Comm type", "Tone", "Drip", "Context", "User", "Action", "Non-neg", "Reference"].map((h) => (
+                          <th key={h} className="text-left px-3 py-2.5 text-[10px] font-semibold text-[#B7B7B8] uppercase tracking-[0.5px] whitespace-nowrap">
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {briefs.rows.map((row, i) => (
+                        <tr key={i} className="border-b border-[#F8F8F8] hover:bg-[#FAFAFA] align-top">
+                          <td className="px-3 py-2.5 text-[#B7B7B8] whitespace-nowrap">
+                            {new Date(row.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                          </td>
+                          <td className="px-3 py-2.5 font-medium text-[#141414] whitespace-nowrap">
+                            {PRODUCT_LABELS[row.product] ?? (row.product || "—")}
+                          </td>
+                          <td className="px-3 py-2.5 whitespace-nowrap text-[#605F63]">
+                            {CHANNEL_LABELS[row.channel] ?? (row.channel || "—")}
+                          </td>
+                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
+                            {row.use_case || "—"}
+                          </td>
+                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
+                            {row.comm_type || "—"}
+                          </td>
+                          <td className="px-3 py-2.5 text-[#605F63] whitespace-nowrap">
+                            {row.tone || "—"}
+                          </td>
+                          <td className="px-3 py-2.5 text-center">
+                            {row.is_drip ? (
+                              <span className="inline-block w-4 h-4 bg-[#EDE9FC] text-[#6841E6] rounded-full text-[9px] font-bold leading-4 text-center">Y</span>
+                            ) : (
+                              <span className="text-[#D0D0D1]">—</span>
+                            )}
+                          </td>
+                          <td className="px-3 py-2.5 text-[#605F63] max-w-[180px]"><Cell text={row.brief_context} /></td>
+                          <td className="px-3 py-2.5 text-[#605F63] max-w-[140px]"><Cell text={row.brief_user_desc} /></td>
+                          <td className="px-3 py-2.5 text-[#605F63] max-w-[140px]"><Cell text={row.brief_action} /></td>
+                          <td className="px-3 py-2.5 text-[#605F63] max-w-[120px]"><Cell text={row.brief_non_neg} /></td>
+                          <td className="px-3 py-2.5 text-[#605F63] max-w-[120px]"><Cell text={row.brief_reference} /></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                {briefs.pages > 1 && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-[#F0F0F1]">
+                    <button
+                      onClick={() => setBriefPage((p) => Math.max(1, p - 1))}
+                      disabled={briefPage === 1}
+                      className="text-[12px] text-[#605F63] hover:text-[#6841E6] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ← Previous
+                    </button>
+                    <span className="text-[11px] text-[#B7B7B8]">
+                      Page {briefs.page} of {briefs.pages}
+                    </span>
+                    <button
+                      onClick={() => setBriefPage((p) => Math.min(briefs.pages, p + 1))}
+                      disabled={briefPage === briefs.pages}
+                      className="text-[12px] text-[#605F63] hover:text-[#6841E6] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Overview tab ──────────────────────────────────────────────────── */}
+        {tab === "overview" && loading && (
           <div className="flex items-center justify-center py-24">
             <p className="text-[13px] text-[#B7B7B8]">Loading…</p>
           </div>
         )}
 
-        {!loading && !data && (
+        {tab === "overview" && !loading && !data && (
           <div className="flex items-center justify-center py-24">
             <p className="text-[13px] text-[#B7B7B8]">No data yet — generate some copy first.</p>
           </div>
         )}
 
-        {data && (
+        {tab === "overview" && data && (
           <div className="space-y-6">
             {/* ── Generation counts ─────────────────────────────────────────── */}
             <div className="grid grid-cols-3 gap-4">

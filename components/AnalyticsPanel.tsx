@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface CostBucket { tokensIn: number; tokensOut: number; usd: number; }
 
 interface Analytics {
+  isWriter?: boolean;
   generations: { last7: number; last30: number; all: number };
   cost?: { last7: CostBucket; last30: CostBucket; all: CostBucket };
   interactions30: { copies: number; regenerates: number; addMore: number; refines: number; exports: number };
@@ -134,8 +135,8 @@ export default function AnalyticsPanel() {
                 </div>
               </div>
 
-              {/* ── Cost ──────────────────────────────────────────────────── */}
-              {data.cost && (
+              {/* ── Cost — writers only ───────────────────────────────────── */}
+              {data.isWriter && data.cost && (
                 <div>
                   <p className="text-[11px] font-semibold text-[#605F63] uppercase tracking-[0.4px] mb-2">API cost (Gemini 2.5 Pro)</p>
                   <div className="grid grid-cols-3 gap-2">

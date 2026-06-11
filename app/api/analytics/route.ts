@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    return NextResponse.json(await getAnalytics());
+    const data = await getAnalytics();
+    return NextResponse.json({ ...data, isWriter: isWriter(email) });
   } catch (err) {
     console.error("analytics GET error:", err);
     return NextResponse.json({ error: "Failed to load analytics" }, { status: 500 });

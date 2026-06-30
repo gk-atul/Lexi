@@ -862,6 +862,7 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
 
   const [currentVariant, setCurrentVariant] = useState(variant);
   const [edited, setEdited] = useState(variant.copy);
+  const [prevEdited, setPrevEdited] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [instruction, setInstruction] = useState("");
@@ -948,6 +949,7 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
       if (!res.ok) {
         setRefineError(data.error || "Refinement failed");
       } else {
+        setPrevEdited(edited);
         setEdited(data.copy);
         setInstruction("");
       }
@@ -1097,6 +1099,15 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
               </svg>
             </button>
           )}
+          {prevEdited !== null && !isEditing && (
+            <button
+              onClick={() => { setEdited(prevEdited); setPrevEdited(null); }}
+              className="text-[12px] font-medium text-[#605F63] hover:text-[#141414] border border-[#E0E0E1] hover:border-[#B7B7B8] rounded-full px-3 py-1 transition-colors"
+              title="Undo last change"
+            >
+              ↩ Undo
+            </button>
+          )}
           <button
             onClick={() => {
               if (!isEditing) {
@@ -1107,6 +1118,7 @@ function OutputCard({ variant, index, isPush, isWhatsApp, channelKey, product, u
                 // Leaving edit mode — fire edit event if text changed
                 setIsEditing(false);
                 if (edited !== editStartTextRef.current) {
+                  setPrevEdited(editStartTextRef.current);
                   fetch("/api/edit-event", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -1282,6 +1294,13 @@ interface Props {
   onPreview?: (copy: string) => void;
 }
 
+const ALL_CHANNELS = [
+  { key: "push",     label: "Push" },
+  { key: "whatsapp", label: "WhatsApp" },
+  { key: "email",    label: "Email" },
+  { key: "in-app",   label: "In-App" },
+];
+
 export default function OutputCards({ variants, channelKey, channel, product, userState, context, generateParams, onPreview }: Props) {
   const isPush = channelKey === "push";
   const isWhatsApp = channelKey === "whatsapp";
@@ -1291,6 +1310,48 @@ export default function OutputCards({ variants, channelKey, channel, product, us
 
   const [addingMore, setAddingMore] = useState(false);
   const [addCount, setAddCount] = useState(1);
+
+  const [extraChannels, setExtraChannels] = useState<{ channelKey: string; label: string; variants: Variant[] }[]>([]);
+  const [generatingChannel, setGeneratingChannel] = useState<string | null>(null);
+
+  const handleAddChannel = async (targetKey: string, label: string) => {
+    if (!generateParams || generatingChannel) return;
+    setGeneratingChannel(targetKey);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: targetKey,
+          variantCount: 3,
+          product: generateParams.product,
+          useCase: generateParams.useCase,
+          context: generateParams.context,
+          userDescription: generateParams.userDescription,
+          commType: generateParams.commType,
+          desiredAction: generateParams.desiredAction,
+          nonNegotiables: generateParams.nonNegotiables,
+          referenceText: generateParams.referenceText,
+          tone: generateParams.tone,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.variants?.length) {
+        setExtraChannels((prev) => {
+          const existing = prev.findIndex((e) => e.channelKey === targetKey);
+          if (existing >= 0) {
+            // Replace if already generated for this channel
+            const next = [...prev];
+            next[existing] = { channelKey: targetKey, label, variants: data.variants };
+            return next;
+          }
+          return [...prev, { channelKey: targetKey, label, variants: data.variants }];
+        });
+      }
+    } finally {
+      setGeneratingChannel(null);
+    }
+  };
 
   // Keep local copy in sync when parent variants change (e.g. channel switch)
   useEffect(() => { setLocalVariants(variants); }, [variants]);
@@ -1436,6 +1497,77 @@ export default function OutputCards({ variants, channelKey, channel, product, us
           )}
         </div>
       )}
+
+      {/* ── Generate for another channel ───────────────────────────────────── */}
+      {generateParams && (
+        <div className="flex items-center gap-2 pt-2 border-t border-[#F0F0F1] mt-2">
+          <span className="text-[11px] text-[#B7B7B8] flex-shrink-0">Also generate for:</span>
+          {ALL_CHANNELS.filter((c) => c.key !== channelKey && !extraChannels.find((e) => e.channelKey === c.key)).map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => handleAddChannel(c.key, c.label)}
+              disabled={!!generatingChannel}
+              className="flex items-center gap-1 text-[12px] font-medium text-[#605F63] border border-[#E0E0E1] hover:border-[#6841E6] hover:text-[#6841E6] hover:bg-[#F0EEFE] rounded-full px-2.5 py-1 transition-all disabled:opacity-40"
+            >
+              {generatingChannel === c.key ? (
+                <div className="w-3 h-3 border border-[#6841E6] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M5 2v6M2 5h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              )}
+              {c.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Extra channel sections ─────────────────────────────────────────── */}
+      {extraChannels.map(({ channelKey: ck, label, variants: ev }) => (
+        <div key={ck} className="mt-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="text-[13px] font-semibold text-[#141414]">{ev.length} variant{ev.length !== 1 ? "s" : ""} —{" "}
+              <span className="text-[#605F63] font-normal">{label} · {product}</span>
+            </h3>
+            <button
+              onClick={() => handleAddChannel(ck, label)}
+              disabled={!!generatingChannel}
+              className="ml-auto text-[11px] text-[#B7B7B8] hover:text-[#6841E6] transition-colors disabled:opacity-40"
+              title="Regenerate this channel"
+            >
+              {generatingChannel === ck ? (
+                <div className="w-3 h-3 border border-[#6841E6] border-t-transparent rounded-full animate-spin" />
+              ) : "↺ Regenerate"}
+            </button>
+          </div>
+          <div className="space-y-4">
+            {ev.map((v, i) => (
+              <OutputCard
+                key={i}
+                variant={v}
+                index={i}
+                isPush={ck === "push"}
+                isWhatsApp={ck === "whatsapp"}
+                channelKey={ck}
+                product={product}
+                userState={userState}
+                context={context}
+                generateParams={{ ...generateParams!, pnFramework: null }}
+                onVariantUpdate={(idx, updated) =>
+                  setExtraChannels((prev) => prev.map((e) =>
+                    e.channelKey === ck
+                      ? { ...e, variants: e.variants.map((vv, ii) => ii === idx ? updated : vv) }
+                      : e
+                  ))
+                }
+                onFeedbackChange={refreshStats}
+                onPreview={onPreview}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

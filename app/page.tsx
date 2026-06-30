@@ -196,7 +196,7 @@ export default function Home() {
               /* ── Idle: full form ─────────────────────────────────────────── */
               <>
                 <TovManager />
-                <WordRulesManager />
+                {isWriter && <WordRulesManager />}
                 {isWriter && <AnalyticsPanel />}
                 <LearningPanel />
                 <div

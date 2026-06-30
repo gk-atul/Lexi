@@ -337,37 +337,37 @@ export default function GeneratorForm({ onGenerate, loading }: Props) {
 
       {/* ── Section 8: Problem statement ─────────────────────────────── */}
       <div>
-        <label className={`block ${labelClass} mb-2`}>Why you&apos;re saying it</label>
+        <label className={`block ${labelClass} mb-2`}>What do you want the user to know?</label>
         <textarea
           value={context}
           onChange={(e) => setContext(e.target.value)}
           rows={3}
-          placeholder="The business objective and the user pain point. e.g. User's auto policy expires in 3 days, 25% NCB at risk. Goal: renewal conversion."
+          placeholder="The key information or situation the user needs to understand. e.g. User's auto policy expires in 3 days, 25% NCB at risk."
           className={textareaClass}
           required
         />
       </div>
 
-      {/* ── Section 9: Desired action ────────────────────────────────── */}
+      {/* ── Section 9: Feel ──────────────────────────────────────────── */}
       <div>
-        <label className={`block ${labelClass} mb-2`}>What do you want the user to do?</label>
+        <label className={`block ${labelClass} mb-2`}>What do you want the user to feel?</label>
         <textarea
           value={desiredAction}
           onChange={(e) => setDesiredAction(e.target.value)}
           rows={2}
-          placeholder="e.g. Tap to renew their policy. CTA: 'Renew now / Pay ₹4,200 / Continue renewal — pick whichever fits best.'"
+          placeholder="e.g. Urgency about losing their NCB. Confidence that renewing is quick and easy."
           className={textareaClass}
         />
       </div>
 
-      {/* ── Section 10: Non-negotiables ──────────────────────────────── */}
+      {/* ── Section 10: Do ───────────────────────────────────────────── */}
       <div>
-        <label className={`block ${labelClass} mb-2`}>What&apos;s non-negotiable?</label>
+        <label className={`block ${labelClass} mb-2`}>What do you want the user to do?</label>
         <textarea
           value={nonNegotiables}
           onChange={(e) => setNonNegotiables(e.target.value)}
           rows={2}
-          placeholder="Mandatory elements (disclosures, specific numbers) or things to avoid (superlatives, emoji-free for claims, specific words to exclude)."
+          placeholder="e.g. Tap to renew their policy. CTA: 'Renew now / Pay ₹4,200 / Continue renewal — pick whichever fits best.'"
           className={textareaClass}
         />
       </div>

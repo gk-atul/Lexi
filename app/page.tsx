@@ -174,13 +174,13 @@ export default function Home() {
       <header className="bg-white border-b border-[#E0E0E1] px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center gap-3">
           <div className="w-8 h-8 bg-[#6841E6] rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs">A</span>
+            <span className="text-base">✍</span>
           </div>
           <div className="flex-1">
             <h1 className="text-[15px] font-semibold text-[#0A0A0A] leading-tight">
-              ACKO Copy Generator
+              Lexi • Comms on demand
             </h1>
-            <p className="text-xs text-[#605F63]">Tone of voice — powered</p>
+            <p className="text-xs text-[#605F63]">Get PNs, WA, Emails, and more, in 1-click</p>
           </div>
           <WriterBadge />
         </div>

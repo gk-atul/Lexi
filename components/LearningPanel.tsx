@@ -31,7 +31,7 @@ function formatDate(iso: string) {
   }
 }
 
-export default function LearningPanel() {
+export default function LearningPanel({ showEmpty = false }: { showEmpty?: boolean }) {
   const [rows, setRows] = useState<InsightRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -95,8 +95,21 @@ export default function LearningPanel() {
     group.combos.push(row);
   }
 
-  if (loading) return null; // Don't flash a skeleton — just wait silently
-  if (rows.length === 0) return null; // Hide entirely until there's something to show
+  if (loading) return null;
+  if (rows.length === 0) {
+    if (!showEmpty) return null;
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center text-[#B7B7B8]">
+        <div className="w-10 h-10 rounded-full bg-[#EAEAFD] flex items-center justify-center mb-3">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5L8 1z" fill="#6841E6"/>
+          </svg>
+        </div>
+        <p className="text-sm font-medium text-[#605F63]">No learnings yet</p>
+        <p className="text-xs mt-1">Rate some generated copy, then run Analyse from here.</p>
+      </div>
+    );
+  }
 
   return (
     <div

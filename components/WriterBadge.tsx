@@ -70,6 +70,19 @@ function ProfilePanel({ onClose }: { onClose: () => void }) {
             <span className="text-[13px] text-[#141414]">Analytics</span>
           </Link>
         )}
+
+        {isWriter && (
+          <Link
+            href="/learnings"
+            onClick={onClose}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-[#F7F7F8] transition-colors w-full"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-[#605F63]">
+              <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5L8 1z" fill="currentColor"/>
+            </svg>
+            <span className="text-[13px] text-[#141414]">Learnings</span>
+          </Link>
+        )}
       </div>
 
       {/* Sign out */}

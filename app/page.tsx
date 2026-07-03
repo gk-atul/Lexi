@@ -9,7 +9,6 @@ import DripCalendar from "@/components/DripCalendar";
 import { ScaledMockup } from "@/components/PhoneMockup";
 import { Channel, PnFramework, CHANNEL_LABELS, PRODUCT_LABELS, USE_CASE_LABELS } from "@/lib/prompts";
 import { GenerateParams } from "@/components/OutputCards";
-import LearningPanel from "@/components/LearningPanel";
 import WordRulesManager from "@/components/WordRulesManager";
 import AnalyticsPanel from "@/components/AnalyticsPanel";
 import WriterBadge from "@/components/WriterBadge";
@@ -198,7 +197,6 @@ export default function Home() {
                 {isWriter && <TovManager />}
                 {isWriter && <WordRulesManager />}
                 {isWriter && <AnalyticsPanel />}
-                <LearningPanel />
                 <div
                   className="bg-[#FBFBFB] border border-white rounded-[20px] p-5"
                   style={{ boxShadow: "0px 2px 16px 4px rgba(0,0,0,0.04)" }}

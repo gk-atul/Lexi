@@ -23,6 +23,8 @@ interface BriefRow {
   tone: string;
   is_drip: number;
   pn_framework: string;
+  tokens_in: number | null;
+  tokens_out: number | null;
   brief_context: string;
   brief_user_desc: string;
   brief_action: string;
@@ -250,13 +252,15 @@ export default function AnalyticsDashboard() {
                       <col style={{ width: "60px"  }} />{/* Drip */}
                       <col style={{ width: "240px" }} />{/* Context */}
                       <col style={{ width: "180px" }} />{/* User */}
+                      <col style={{ width: "90px" }} />{/* Tokens in */}
+                      <col style={{ width: "90px" }} />{/* Tokens out */}
                       <col style={{ width: "160px" }} />{/* Action */}
                       <col style={{ width: "160px" }} />{/* Non-neg */}
                       <col style={{ width: "160px" }} />{/* Reference */}
                     </colgroup>
                     <thead>
                       <tr className="border-b border-[#F0F0F1] bg-[#FAFAFA]">
-                        {["Date", "LoB", "Channel", "Use case", "Comm type", "Tone", "Drip", "Context", "User", "Action", "Non-neg", "Reference"].map((h) => (
+                        {["Date", "LoB", "Channel", "Use case", "Comm type", "Tone", "Drip", "Tokens in", "Tokens out", "Context", "User", "Action", "Non-neg", "Reference"].map((h) => (
                           <th key={h} className="text-left px-4 py-3 text-[10px] font-semibold text-[#B7B7B8] uppercase tracking-[0.5px] whitespace-nowrap">
                             {h}
                           </th>
@@ -285,6 +289,8 @@ export default function AnalyticsDashboard() {
                               <span className="text-[#D0D0D1]">—</span>
                             )}
                           </td>
+                          <td className="px-4 py-3 text-right text-[#605F63] font-variant-numeric tabular-nums whitespace-nowrap">{row.tokens_in ?? "—"}</td>
+                          <td className="px-4 py-3 text-right text-[#605F63] font-variant-numeric tabular-nums whitespace-nowrap">{row.tokens_out ?? "—"}</td>
                           <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_context} max={160} /></td>
                           <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_user_desc} max={120} /></td>
                           <td className="px-4 py-3 text-[#605F63] leading-relaxed"><Cell text={row.brief_action} max={120} /></td>

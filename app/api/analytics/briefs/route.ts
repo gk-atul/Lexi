@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   const rowsResult = await db.execute({
     sql: `SELECT
       created_at, channel, product, use_case, comm_type, tone,
-      is_drip, pn_framework,
+      is_drip, pn_framework, tokens_in, tokens_out,
       brief_context, brief_user_desc, brief_action, brief_non_neg, brief_reference
     FROM usage_events
     WHERE ${where}
